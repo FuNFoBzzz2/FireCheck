@@ -7,13 +7,34 @@
 <body>
   <h1>Code Basics</h1>
   <p>ESHKERE</p>
-  <div>
-    <label for="message">Review Contents</label>
-    <textarea class="materialize-textarea" name="" id="message"></textarea>
+  <div class='container'>
+    <div class='header'>
+      <img src="logo.png" width="100%" alt="">
+      <h4>Real-Time Database CRUD example</h4>
+    </div>
+    <br />
+    <form id='reviewForm'>
+      <input type="hidden" id='hiddenId' />     
+      <div class="input-field">
+        <label for="fullName">Full Name</label>
+        <input type="text" id='fullName' />
+      </div>
+      <br />
+      <div class="input-field">
+        <label for="message">Review Contents</label>
+        <textarea class="materialize-textarea" id='message'></textarea>
+      </div>
+      <div class="input-field">
+        <label for="tags">Tags</label>
+        <input type="text" id='tags' />
+      </div>
+      <br />
+      <br />
+      <button class="waves-effect waves-light btn" type='submit'>Add / Update review</button>
+    </form>
+    <br /><br /><br />
+    <ul id='reviews'></ul>
   </div>
-  <button class="waves-effect" >Add / Update</button>
-  <ul id="reviews"></ul>
-
   <script type="module" src="./app.js"></script>
 </body>
 </html>

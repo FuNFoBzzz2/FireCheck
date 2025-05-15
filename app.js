@@ -12,7 +12,20 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
+var db = app.databaseURL();
+var rewiews = document.getElementById("reviews");
+var reviewsRef = db.ref("/reviews");
+reviewForm.addEventListener("submit", e =>{
+    var fullName = document.getElementById("fullName");
+    var message = document.getElementById("message");
+    var hiddenId = document.getElementById("hiddenId");
+    var id = hiddenId.value || Date.now();
+    db.ref("reviews/" + id).set({
+        fullName: fullName.value,
+        message: message.value,
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+    });
+});
 //import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
 //const analytics = getAnalytics(app);
 
