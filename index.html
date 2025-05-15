@@ -2,39 +2,21 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>ШАШ</title>
+  <title>Firebase Form</title>
 </head>
 <body>
-  <h1>Code Basics</h1>
-  <p>ESHKERE</p>
-  <div class='container'>
-    <div class='header'>
-      
-      <h4>Real-Time Database CRUD example</h4>
+  <h1>Отправить отзыв</h1>
+  <form id="reviewForm">
+    <div>
+      <label for="fullName">Имя:</label>
+      <input type="text" id="fullName" required>
     </div>
-    <br />
-    <form id='reviewForm'>
-      <input type="hidden" id='hiddenId' />     
-      <div class="input-field">
-        <label for="fullName">Full Name</label>
-        <input type="text" id='fullName' />
-      </div>
-      <br />
-      <div class="input-field">
-        <label for="message">Review Contents</label>
-        <textarea class="materialize-textarea" id='message'></textarea>
-      </div>
-      <div class="input-field">
-        <label for="tags">Tags</label>
-        <input type="text" id='tags' />
-      </div>
-      <br />
-      <br />
-      <button class="waves-effect waves-light btn" type='submit'>Add / Update review</button>
-    </form>
-    <br /><br /><br />
-    <ul id='reviews'></ul>
-  </div>
+    <div>
+      <label for="message">Сообщение:</label>
+      <textarea id="message" required></textarea>
+    </div>
+    <button type="submit">Отправить</button>
+  </form>
   <script type="module" src="./app.js"></script>
 </body>
 </html>
