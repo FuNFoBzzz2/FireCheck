@@ -26,6 +26,7 @@ reviewForm.addEventListener("submit", e =>{
         createdAt: firebase.database.ServerValue.TIMESTAMP
     });
 });
+console.log("Send fullName: " ,fullName.value ," Mess: ", message.value);
 //import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-analytics.js";
 //const analytics = getAnalytics(app);
 
