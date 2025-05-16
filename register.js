@@ -28,7 +28,7 @@ submitreg.addEventListener('click', function (event){
         if(pas1.length>6 || pas2.length>6){
             if(pas1==pas2){
                 const auth = getAuth();
-                createUserWithEmailAndPassword(auth, email, password)
+                createUserWithEmailAndPassword(auth, email, pas1)
                 .then((userCredential) => {
                     const user = userCredential.user;
                     window.location.href = "./home.html";
