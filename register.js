@@ -25,7 +25,7 @@ submitreg.addEventListener('click', function (event){
     const pas2 = document.getElementById('password-2').value;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (emailRegex.test(email)) {
-        if(pas1.length>6 || pas2.length>6){
+        if(pas1.length>=6 && pas2.length>=6){
             if(pas1==pas2){
                 const auth = getAuth();
                 createUserWithEmailAndPassword(auth, email, pas1)
