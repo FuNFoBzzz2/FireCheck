@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets//regc.css">
     <title>Register</title>
+    <script type="module" src="./convert.js" defer></script>
 </head>
 <body>
 <div class="container">
-    <form method = "POST" action ="reg.php">
+    <form method = "POST">
     <h2>Регистрация</h2>
     <div class="errorT">
        
@@ -24,14 +25,14 @@
         </div>
         <div class="form-group">
             <label class="form-label">Пароль</label>
-            <input id="password" name="pass-first" placeholder="Введите ваш пароль" class="inputT">
+            <input id="password-1" name="pass-first" placeholder="Введите ваш пароль" class="inputT">
         </div>
         <div class="form-group">
             <label class="form-label">Повтор пароля</label>
-            <input id="password" name="pass-second" class="inputT" placeholder="Ещё раз введите пароль">
+            <input id="password-2" name="pass-second" class="inputT" placeholder="Ещё раз введите пароль">
         </div>
-        <button type="submit" class="submit-button" name="button-reg">Зарегистрироваться</button>
-        <a href="" class="href" >Войти</a>
+        <button type="submit" id="submit-reg" class="submit-button" name="button-reg">Зарегистрироваться</button>
+        <a href="./sign.html" class="href" >Войти</a>
        
     </form>
 </div>
