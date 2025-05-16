@@ -64,7 +64,7 @@ submitsign.addEventListener('click', function (event){
         
         const user = userCredential.user;
         window.location.href = "./home.html";
-        alert("Creating Account");
+        alert("Sign in Account");
     })
     .catch((error) => {
         const errorCode = error.code;
