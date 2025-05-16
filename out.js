@@ -13,7 +13,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app); 
 
 const logoutBtn = document.getElementById('logout-btn');
 logoutBtn.addEventListener('click', (e) => {
