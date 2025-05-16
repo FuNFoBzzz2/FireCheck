@@ -13,16 +13,14 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app); // ✅ Правильный метод для Firebase 9+
+const db = getDatabase(app); 
 
 const reviewForm = document.getElementById("reviewForm");
 reviewForm.addEventListener("submit", (e) => {
   e.preventDefault();
-
   const fullName = document.getElementById("fullName").value;
   const message = document.getElementById("message").value;
   const reviewId = Date.now().toString();
-
   set(ref(db, "reviews/" + reviewId), {
     fullName: fullName,
     message: message,
@@ -37,3 +35,4 @@ reviewForm.addEventListener("submit", (e) => {
       alert("Ошибка при отправке!");
     });
 });
+
