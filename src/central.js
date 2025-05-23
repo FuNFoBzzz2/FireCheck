@@ -48,31 +48,23 @@ onAuthStateChanged(auth, (user) => {
         onDisconnect(userRef).update({
             Online: false,
         });
-        window.addEventListener('beforeunload', async () => {
-            try {
-                await update(userRef, {
-                    Online: false,
-                });
-            } catch (error) {
-                console.error("Ошибка при обновлении статуса:", error);
-            }
-        });
-        // Пользователь авторизован
-        onValue(userRef, (snapshot) => {
-            const userData = snapshot.val();
-            if (userData) {
-                // Заполняем данные на странице
-                document.getElementById('TextName').textContent = userData.name;
-                if(userData.visible_mail==true){
-                    document.getElementById('TextEmail').textContent = userData.email;
-                } else{
-                    document.getElementById('TextEmail').closest('.form-group').remove();
-                }
-                document.getElementById('TextWL').textContent = `${userData.wins } / ${userData.loses }`;
-            }
-        });
+        loadUserData(userRef);
     } else {
         // Пользователь не авторизован - перенаправляем на страницу входа
         window.location.href = "./sign.html";
     }
 });
+async function loadUserData(userRef) {
+    const snapshot = await get(userRef);
+    const userData = snapshot.val();
+    
+    if (userData) {
+        document.getElementById('TextName').textContent = userData.name || 'Не указано';
+        if(userData.visible_mail) {
+            document.getElementById('TextEmail').textContent = userData.email || 'Не указано';
+        } else {
+            document.querySelector('#TextEmail').closest('.form-group')?.remove();
+        }
+        document.getElementById('TextWL').textContent = `${userData.wins || 0} / ${userData.loses || 0}`;
+    }
+}
