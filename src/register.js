@@ -1,6 +1,6 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getDatabase, ref, set, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, onDisconnect, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAv69ST8kfulsnpKoB3Qv-d5tWvwE6s1sk",
@@ -20,6 +20,7 @@ const db = getDatabase(app);
 const submitreg = document.getElementById('submit-reg');
 submitreg.addEventListener('click', function (event){
     event.preventDefault()
+    const name = document.getElementById('name').value;
     const email = document.getElementById('mail').value;
     const pas1 = document.getElementById('password-1').value;
     const pas2 = document.getElementById('password-2').value;
@@ -31,13 +32,21 @@ submitreg.addEventListener('click', function (event){
                 createUserWithEmailAndPassword(auth, email, pas1)
                 .then((userCredential) => {
                     const user = userCredential.user;
+                    set(ref(db,'users/'+user.uid),{
+                        name: name,
+                        email: email,
+                        wins: 0,
+                        loses: 0,
+                        Online: true,
+                        visible_mail: true,
+                        createdAt: serverTimestamp()
+                    });
+                    localStorage.setItem('currentUserUID', user.uid);
                     window.location.href = "./home.html";
                     alert("Creating Account");
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    alert(errorMessage);
+                    alert(error.message);
                 });
             } else{
                 alert("Пароли не совпадают!");

@@ -24,14 +24,12 @@ function trackOnlineUsers() {
     if (user) {
       // Пользователь вошел в систему
       const userRef = ref(db, 'onlineUsers/' + user.uid);
-      
       // Установите пользователя как онлайн
       set(userRef, {
         uid: user.uid,
         displayName: user.displayName || 'Anonymous',
         lastActive: serverTimestamp()
       });
-      
       // Удалите запись при отключении
       onDisconnect(userRef).remove();
     } else {
@@ -39,15 +37,13 @@ function trackOnlineUsers() {
       signInAnonymously(auth);
     }
   });
-  
-  // Отслеживание всех онлайн пользователей
+    // Отслеживание всех онлайн пользователей
   const onlineUsersRef = ref(db, 'onlineUsers');
   onValue(onlineUsersRef, (snapshot) => {
     const users = snapshot.val() || {};
     updateOnlineUsersList(users);
   });
 }
-
 // Обновление списка онлайн пользователей в UI
 function updateOnlineUsersList(users) {
   const usersList = document.getElementById('online-users-list');
@@ -59,11 +55,9 @@ function updateOnlineUsersList(users) {
     userElement.textContent = user.displayName;
     usersList.appendChild(userElement);
   });
-  
   // Обновляем счетчик
   document.getElementById('online-count').textContent = Object.keys(users).length;
 }
-
 // Инициализация при загрузке страницы
 window.addEventListener('load', () => {
   trackOnlineUsers();
