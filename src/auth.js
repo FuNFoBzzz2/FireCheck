@@ -55,11 +55,3 @@ document.getElementById('submit-sign').addEventListener('click', async (event) =
         alert(errorMessage);
     }
 });
-
-// Проверка авторизации при загрузке страницы
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // Если пользователь уже авторизован, перенаправляем на home.html
-        window.location.href = "./home.html";
-    }
-});
