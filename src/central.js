@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, get, set, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -66,16 +66,17 @@ async function loadUserData(userRef) {
         const userData = snapshot.val();
     
         if (userData) {
-            document.getElementById('TextName').textContent = userData.name || 'Не указано';
+            const nameElement = document.getElementById('TextName');
             const emailElement = document.getElementById('TextEmail');
-            const emailGroup = emailElement?.closest('.form-group'); 
-            if (userData.visible_mail && emailElement) {
+            const statsElement = document.getElementById('TextWL');
+            nameElement.textContent = userData.name || 'Не указано';
+            if (userData.visible_mail) {
                 emailElement.textContent = userData.email || 'Не указано';
-            } else if (emailGroup) {
-                emailGroup.remove();
+            } else {
+                const emailGroup = emailElement.closest('.form-group');
+                emailGroup.style.display = 'none';
             }
-            document.getElementById('TextWL').textContent = 
-                `${userData.wins || 0} / ${userData.loses || 0}`;
+            statsElement.textContent = `${userData.wins || 0} / ${userData.loses || 0}`;
         }
     } catch (error) {
         console.error("Ошибка загрузки данных:", error);
