@@ -39,32 +39,45 @@ async function handleLogout() {
 }
 
 // Проверяем состояние аутентификации
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
-        update(userRef, {
-            Online: true,
-        });
-        onDisconnect(userRef).update({
-            Online: false,
-        });
-        loadUserData(userRef);
-    } else {
-        // Пользователь не авторизован - перенаправляем на страницу входа
-        window.location.href = "./sign.html";
+        try {
+            await update(userRef, {
+                Online: true,
+            });
+            onDisconnect(userRef).update({
+                Online: false,
+            });
+            await loadUserData(userRef);
+        } catch (error) {
+            console.error("Ошибка при обновлении статуса:", error);
+        }
+        
+    }else {
+            // Пользователь не авторизован - перенаправляем на страницу входа
+            window.location.href = "./sign.html";
     }
 });
+
 async function loadUserData(userRef) {
-    const snapshot = await get(userRef);
-    const userData = snapshot.val();
+    try {
+        const snapshot = await get(userRef);
+        const userData = snapshot.val();
     
-    if (userData) {
-        document.getElementById('TextName').textContent = userData.name || 'Не указано';
-        if(userData.visible_mail) {
-            document.getElementById('TextEmail').textContent = userData.email || 'Не указано';
-        } else {
-            document.querySelector('#TextEmail').closest('.form-group')?.remove();
+        if (userData) {
+            document.getElementById('TextName').textContent = userData.name || 'Не указано';
+            const emailElement = document.getElementById('TextEmail');
+            const emailGroup = emailElement?.closest('.form-group'); 
+            if (userData.visible_mail && emailElement) {
+                emailElement.textContent = userData.email || 'Не указано';
+            } else if (emailGroup) {
+                emailGroup.remove();
+            }
+            document.getElementById('TextWL').textContent = 
+                `${userData.wins || 0} / ${userData.loses || 0}`;
         }
-        document.getElementById('TextWL').textContent = `${userData.wins || 0} / ${userData.loses || 0}`;
+    } catch (error) {
+        console.error("Ошибка загрузки данных:", error);
     }
 }

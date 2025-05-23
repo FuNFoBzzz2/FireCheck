@@ -17,9 +17,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app); 
 
 
-const submitreg = document.getElementById('submit-reg');
-submitreg.addEventListener('click', function (event){
-    event.preventDefault()
+document.getElementById('submit-reg').addEventListener('click', async function(event) {
+    event.preventDefault();
     const name = document.getElementById('name').value;
     const email = document.getElementById('mail').value;
     const pas1 = document.getElementById('password-1').value;
@@ -29,25 +28,24 @@ submitreg.addEventListener('click', function (event){
         if(pas1.length>=6 && pas2.length>=6){
             if(pas1==pas2){
                 const auth = getAuth();
-                createUserWithEmailAndPassword(auth, email, pas1)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    set(ref(db,'users/'+user.uid),{
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pas1);
+                const user = userCredential.user;
+                try{
+                // Сохранение данных пользователя
+                    await set(ref(db, 'users/' + user.uid), {
                         name: name,
                         email: email,
                         wins: 0,
                         loses: 0,
                         Online: true,
-                        visible_mail: true,
-                        createdAt: serverTimestamp()
+                        visible_mail: true
                     });
                     localStorage.setItem('currentUserUID', user.uid);
                     window.location.href = "./home.html";
                     alert("Creating Account");
-                })
-                .catch((error) => {
+                } catch(error) {
                     alert(error.message);
-                });
+                };
             } else{
                 alert("Пароли не совпадают!");
             }
