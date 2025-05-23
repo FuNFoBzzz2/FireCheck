@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase Form</title>
+</head>
+<body>
+  <h1>Отправить отзыв</h1>
+  <form id="reviewForm">
+    <div>
+      <label for="fullName">Имя:</label>
+      <input type="text" id="fullName" required>
+    </div>
+    <div>
+      <label for="message">Сообщение:</label>
+      <textarea id="message" required></textarea>
+    </div>
+    <button type="submit">Отправить</button>
+  </form>
+  <!-- Только этот скрипт, без CDN! -->
+  <script type="module" src="./src/app.js"></script>
+  <button onclick="window.location = './sign.html'">Нажмите здесь для перехода</button>
+</body>
+</html>

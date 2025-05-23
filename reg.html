@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets//regc.css">
+    <title>Register</title>
+    <script type="module" src="./src/register.js" defer></script>
+</head>
+<body>
+<div class="container">
+    <h2>Регистрация</h2>
+    <div class="errorT">
+       
+    </div>
+    <!-- <form action="#" method="post"> -->
+        <div class="form-group">
+            <label class="form-label">Имя</label>
+            <input id="name" name="name" class="inputT" placeholder="Введите ваше имя" value="">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Электронная почта</label>
+            <input id="mail" name="mail" class="inputT" placeholder="Введите вашу почту" value="" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Пароль</label>
+            <input id="password-1" name="pass-first" placeholder="Введите ваш пароль" class="inputT">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Повтор пароля</label>
+            <input id="password-2" name="pass-second" class="inputT" placeholder="Ещё раз введите пароль">
+        </div>
+        <button type="submit" id="submit-reg" class="submit-button" name="button-reg">Зарегистрироваться</button>
+        <a href="./sign.html" class="href" >Войти</a>
+</div>
+
+</body>
+</html>

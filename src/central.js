@@ -1,0 +1,78 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, set, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAv69ST8kfulsnpKoB3Qv-d5tWvwE6s1sk",
+  authDomain: "checkers-online-503ca.firebaseapp.com",
+  databaseURL: "https://checkers-online-503ca-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "checkers-online-503ca",
+  storageBucket: "checkers-online-503ca.appspot.com",
+  messagingSenderId: "35572184263",
+  appId: "1:35572184263:web:914b2908b9d398778d7ae2",
+  measurementId: "G-WSLS7RSWKB"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+// Обработка выхода
+document.getElementById('logout-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    handleLogout();
+});
+async function handleLogout() {
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            await update(ref(db, 'users/' + user.uid), {
+                Online: false,
+            });
+            await signOut(auth);
+            localStorage.removeItem('currentUserUID');
+            window.location.href = "./sign.html";
+        } catch (error) {
+            alert("Ошибка при выходе: " + error.message);
+        }
+    }
+}
+
+// Проверяем состояние аутентификации
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        const userRef = ref(db, 'users/' + user.uid);
+        update(userRef, {
+            Online: true,
+        });
+        onDisconnect(userRef).update({
+            Online: false,
+        });
+        window.addEventListener('beforeunload', async () => {
+            try {
+                await update(userRef, {
+                    Online: false,
+                });
+            } catch (error) {
+                console.error("Ошибка при обновлении статуса:", error);
+            }
+        });
+        // Пользователь авторизован
+        onValue(userRef, (snapshot) => {
+            const userData = snapshot.val();
+            if (userData) {
+                // Заполняем данные на странице
+                document.getElementById('TextName').textContent = userData.name;
+                if(userData.visible_mail==true){
+                    document.getElementById('TextEmail').textContent = userData.email;
+                } else{
+                    document.getElementById('TextEmail').closest('.form-group').remove();
+                }
+                document.getElementById('TextWL').textContent = `${userData.wins } / ${userData.loses }`;
+            }
+        });
+    } else {
+        // Пользователь не авторизован - перенаправляем на страницу входа
+        window.location.href = "./sign.html";
+    }
+});
