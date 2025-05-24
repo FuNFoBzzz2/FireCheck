@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, get, set, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAv69ST8kfulsnpKoB3Qv-d5tWvwE6s1sk",
@@ -17,6 +18,50 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+document.getElementById('home-button').addEventListener('click', (e) => {
+    e.preventDefault();
+    handlegohome();
+});
+async function handlegohome(){
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            window.location.href = "./home.html";
+        } catch (error) {
+            alert("Ошибка при выходе: " + error.message);
+        }
+    }
+}
+document.getElementById('del-button').addEventListener('click', (e) => {
+    e.preventDefault();
+    deleteAc();
+});
+async function deleteAc(){
+    const user = auth.currentUser;
+    if (!confirm('Вы уверены, что хотите удалить аккаунт? Все ваши данные будут безвозвратно удалены.')) {
+        return;
+    }
+    const password = prompt('Для подтверждения удаления аккаунта введите ваш пароль:');
+    if (!password) {
+        return;
+    }
+    try {
+        // Создаем credential для реавторизации
+        const credential = EmailAuthProvider.credential(user.email, password);
+        // Реавторизуем пользователя
+        await reauthenticateWithCredential(user, credential);
+        // Удаляем данные из Realtime Database
+        const userRef = ref(db, 'users/' + user.uid);
+        await remove(userRef);
+        // Удаляем аккаунт из Authentication
+        await deleteUser(user);
+        // Перенаправляем на страницу входа
+        alert('Ваш аккаунт был успешно удален.');
+        window.location.href = './sign.html';
+    } catch (error) {
+        console.error('Ошибка при удалении аккаунта:', error);
+    }
+};
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
@@ -42,13 +87,10 @@ async function loadUserData(userRef) {
     try {
         const snapshot = await get(userRef);
         const userData = snapshot.val();
-    
         if (userData) {
-            const nameElement = document.getElementById('TextName');
-            const emailElement = document.getElementById('TextEmail');
-            const statsElement = document.getElementById('mailVisible');
-            nameElement.textContent = userData.name || 'Не указано';
-            emailElement.textContent = userData.email || 'Не указано';
+            document.getElementById('TextName').value = userData.name || 'Не указано';
+            document.getElementById('TextEmail').value = userData.email || 'Не указано';
+            document.getElementById('mailVisible').checked = userData.mailVisible || true;
         }
     } catch (error) {
         console.error("Ошибка загрузки данных:", error);

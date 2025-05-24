@@ -84,7 +84,7 @@ body {
   background-color: #b9b9b9; /* Цвет фона при наведении */
 }
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 .left-form{
   display: flex;
