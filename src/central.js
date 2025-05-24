@@ -17,6 +17,10 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
+document.getElementById('sett-button').addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = "./settings.html";
+});
 // Обработка выхода
 document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
