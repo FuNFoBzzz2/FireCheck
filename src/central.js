@@ -19,8 +19,18 @@ const auth = getAuth(app);
 
 document.getElementById('sett-button').addEventListener('click', (e) => {
     e.preventDefault();
-    window.location.href = "./settings.html";
+    handlegoset();
 });
+async function handlegoset(){
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            window.location.href = "./settings.html";
+        } catch (error) {
+            alert("Ошибка при выходе: " + error.message);
+        }
+    }
+}
 // Обработка выхода
 document.getElementById('logout-btn').addEventListener('click', (e) => {
     e.preventDefault();
