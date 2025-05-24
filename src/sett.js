@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, get, set, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, get, set, remove, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
@@ -86,11 +86,13 @@ onAuthStateChanged(auth, async (user) => {
 async function loadUserData(userRef) {
     try {
         const snapshot = await get(userRef);
-        const userData = snapshot.val();
-        if (userData) {
+        if (snapshot.exists()) {
+            const userData = snapshot.val();
             document.getElementById('TextName').value = userData.name || 'Не указано';
             document.getElementById('TextEmail').value = userData.email || 'Не указано';
             document.getElementById('mailVisible').checked = userData.mailVisible || true;
+        }else {
+            console.log("Данные пользователя не найдены");
         }
     } catch (error) {
         console.error("Ошибка загрузки данных:", error);
