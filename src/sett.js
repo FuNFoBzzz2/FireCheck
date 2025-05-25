@@ -166,7 +166,7 @@ async function loadUserData(userRef) {
             const userData = snapshot.val();
             document.getElementById('TextName').value = userData.name || 'Не указано';
             document.getElementById('TextEmail').value = userData.email || 'Не указано';
-            document.getElementById('mailVisible').checked = userData.visible_mail || true;
+            document.getElementById('mailVisible').checked ? userData.visible_mail: true;
         }else {
             console.log("Данные пользователя не найдены");
         }
