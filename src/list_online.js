@@ -18,32 +18,67 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 
-// Функция для отслеживания онлайн пользователей
-function trackOnlineUsers() {
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      // Пользователь вошел в систему
-      const userRef = ref(db, 'onlineUsers/' + user.uid);
-      // Установите пользователя как онлайн
-      set(userRef, {
-        uid: user.uid,
-        displayName: user.displayName || 'Anonymous',
-        lastActive: serverTimestamp()
-      });
-      // Удалите запись при отключении
-      onDisconnect(userRef).remove();
-    } else {
-      // Анонимный вход (если нужно)
-      signInAnonymously(auth);
-    }
-  });
-    // Отслеживание всех онлайн пользователей
-  const onlineUsersRef = ref(db, 'onlineUsers');
-  onValue(onlineUsersRef, (snapshot) => {
-    const users = snapshot.val() || {};
-    updateOnlineUsersList(users);
-  });
+async function loadOnlinePlayers() {
+    const currentUser = auth.currentUser;
+    const usersRef = ref(db, 'users');
+    onValue(usersRef, (snapshot) => {
+        const playersList = document.getElementById('players-list');
+        const noPlayers = document.getElementById('no-players');
+        playersList.innerHTML = '';
+        const playersData = snapshot.val();
+        let onlinePlayersCount = 0;
+        for (const userId in playersData) {
+            const player = playersData[userId];
+            if (userId === currentUser.uid || !player.Online) continue;
+            onlinePlayersCount++;
+            const playerElement = document.createElement('div');
+            playerElement.className = 'player-card';
+            playerElement.innerHTML = `
+                <a href="game.html?opponent=${userId}" class="link">
+                    <div class="list-group">
+                        <div class="Image"></div>
+                        <div class="greenfn"></div>
+                        <div class="left-form">
+                            <div class="form-group">
+                                <label class="form-label">Имя</label>
+                                <span class="form-value">${player.name || 'Без имени'}</span>
+                            </div>
+                            ${player.visible_mail ? `
+                            <div class="form-group">
+                                <label class="form-label">Электронная почта</label>
+                                <span class="form-value">${player.email || 'Не указана'}</span>
+                            </div>
+                            ` : ''}
+                            <div class="form-group">
+                                <label class="form-label">Побед / Поражений</label>
+                                <span class="form-value">${player.wins || 0} / ${player.loses || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            `;
+            playersList.appendChild(playerElement);
+        }
+        // Показываем сообщение, если нет игроков онлайн
+        if (onlinePlayersCount === 0) {
+            noPlayers.style.display = 'block';
+            playersList.innerHTML = '<div class="no-players-msg">Сейчас никто не играет. Будьте первым!</div>';
+        } else {
+            noPlayers.style.display = 'none';
+        }
+    }, {
+        onlyOnce: false
+    });
 }
+
+// Инициализация при загрузке страницы
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        loadOnlinePlayers();
+    } else {
+        window.location.href = "sign.html";
+    }
+});
 // Обновление списка онлайн пользователей в UI
 function updateOnlineUsersList(users) {
   const usersList = document.getElementById('online-users-list');
@@ -58,7 +93,22 @@ function updateOnlineUsersList(users) {
   // Обновляем счетчик
   document.getElementById('online-count').textContent = Object.keys(users).length;
 }
-// Инициализация при загрузке страницы
-window.addEventListener('load', () => {
-  trackOnlineUsers();
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const userRef = ref(db, 'users/' + user.uid);
+        try {
+            await update(userRef, {
+                Online: true,
+            });
+            onDisconnect(userRef).update({
+                Online: false,
+            });
+            setInterval(loadOnline(), 5000);
+        } catch (error) {
+            console.error("Ошибка при обновлении статуса:", error);
+        }
+    }else {
+        window.location.href = "./sign.html";
+    }
 });

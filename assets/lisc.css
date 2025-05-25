@@ -1,0 +1,110 @@
+body {
+    background-color: rgb(131, 131, 131);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    margin: 0; /* Убираем отступы по умолчанию */
+  }
+.container {
+    background-color: #e1e1e1;
+    text-decoration: none;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid black;
+    width: 40%; /* Задаем фиксированную ширину для контейнера */
+    min-width: 350px;
+    max-width: 450px; /* Максимальная ширина контейнера */
+  }
+  .header {
+    position: relative;
+    overflow: hidden; /* Очищаем обтекание */
+    text-decoration: none;
+  }  
+  .setting {
+    display: flex;
+    justify-content: flex-end; /* Выравнивание кнопок вправо */
+    /* align-items: center;   */  
+  }
+  .list-group{
+    border: 1px solid black;
+    text-decoration: none;
+    padding: 5px;
+    margin-top: 15px;
+    background-color: rgba(0, 0, 0, 0.1);
+    /* width: 70%; */
+  }
+ 
+  .Image {
+    background-color: #989898; 
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    border: 1px solid black;
+    float: left; /* Плаваем влево */
+    margin-right: 20px; /* Отступ между изображением и группами форм */
+  }
+  .left-form{
+    display: flex;
+    flex-direction: column; /* Устанавливаем направление по вертикали */
+    align-items: flex-start;
+    text-decoration: none;
+  }
+  .form-group {
+    text-decoration: none;
+    display: flex; /* Используем Flexbox */
+     align-items: center;  
+     margin-bottom: 15px;
+  }
+
+  .form-label {
+    margin-top: 5px;
+    text-decoration: none;
+    /* margin-bottom: 5px; */
+    font-weight: bold;
+    /* text-align: left;  */
+    /* width: 100%;  */
+  }
+  .form-value {
+    margin-left: 5px;
+  }
+  .href {
+    /* display: block; */
+    text-align: center; /* Центрируем текст внутри ссылки */
+    font-size: 18px; /* Установите размер шрифта */
+    max-height: 33px;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif; /* Установите шрифт */
+    background-color: #989898; /* Цвет фона, чтобы она выглядела как кнопка */
+    color: black; /* Цвет текста */
+    border: 1px solid black;
+    margin-left: 10px;
+    padding: 5px; /* Отступы внутри ссылки */
+    border-radius: 8px; /* Закругление углов */
+    text-decoration: none; /* Убираем подчеркивание */
+    transition: background-color 0.3s ease; /* Плавный переход цвета */
+  }
+  .href:hover {
+    background-color: #b9b9b9; /* Цвет фона при наведении */
+  }
+  .greenfn{
+    background-color: #37d47e; 
+    text-decoration: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    border: 1px solid black;
+    float: right;  
+  }
+  .link {
+    color: black !important; /* Устанавливаем цвет текста */
+    text-decoration: none !important; /* Убираем подчеркивание */
+}
+
+.link:hover {
+    color: rgb(66, 66, 66) !important; /* Цвет текста при наведении */
+    text-decoration: none !important; /* Убираем подчеркивание при наведении */
+}

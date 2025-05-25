@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Online Users Demo</title>
-  <script type="module" src="./src/list_online.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="Refresh" content="10">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets//lisc.css">
+    <title>Players</title>
+    <script type="module" src="./src/list_online.js"></script>
 </head>
 <body>
-  <h1>Online Users</h1>
-  <div>
-    <span>Online: </span>
-    <span id="online-count">0</span>
-  </div>
-  <div id="online-users-list"></div>
+    <div class="container">
+        <div class="header">
+            <div class="setting">
+                <!-- <span id="online-count">0</span> -->
+                <a href="./home.html" class="href" >Назад</a>
+            </div>
+            <div id="players-list">
+                <div class="loading">Загрузка списка игроков...</div>
+            </div>
+            <div id="no-players" style="display: none;">
+                <label class="form-label">Пользователей онлайн нет</label>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
