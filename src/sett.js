@@ -66,19 +66,17 @@ async function saveUser() {
                     alert("пароли заполнена неверно");
                 }
             }
-            if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
-                await updateEmail(user, newEmail);
-                const success = await updateUserEmail(user, newEmail);
-                if (!success) {
-                    document.getElementById('TextEmail').value = user.email;
-                }
-                const updates = {
-                    email: newEmail
-                };
-                // 3. Отправляем письмо для верификации нового email
-                await sendEmailVerification(user);
-                alert('Email успешно изменён! На новый адрес отправлено письмо для подтверждения.');
-                await update(ref(db, 'users/' + user.uid), updates);
+            if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && emailChanged){
+                // await updateEmail(user, newEmail);
+                // const updates = {
+                //     email: newEmail
+                // };
+                // // 3. Отправляем письмо для верификации нового email
+                // await sendEmailVerification(user);
+                // alert('На новый адрес отправлено письмо для подтверждения.');
+                // await update(ref(db, 'users/' + user.uid), updates);
+                updateEmail(user, newEmail).then(() => {
+                }).catch((error) => {});
             }else{
                 alert("Введите корректный email! Пример: user@example.com"); 
             }
@@ -99,7 +97,19 @@ async function saveUser() {
         alert(`Ошибка: ${error.message}`);
     }
 }
-
+// Функция отправки письма подтверждения
+async function sendEmailVerification(user) {
+    try {
+        const actionCodeSettings = {
+            url: window.location.origin + '/home.html', // Укажите вашу страницу подтверждения
+            handleCodeInApp: true
+        };
+        await sendEmailVerification(user, actionCodeSettings);
+    } catch (error) {
+        console.error('Ошибка отправки письма подтверждения:', error);
+        throw error;
+    }
+}
 document.getElementById('del-button').addEventListener('click', (e) => {
     e.preventDefault();
     deleteAc();
