@@ -66,19 +66,21 @@ async function saveUser() {
                     alert("пароли заполнена неверно");
                 }
             }
-            if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail) && emailChanged){
-                // await updateEmail(user, newEmail);
-                // const updates = {
-                //     email: newEmail
-                // };
-                // // 3. Отправляем письмо для верификации нового email
-                // await sendEmailVerification(user);
-                // alert('На новый адрес отправлено письмо для подтверждения.');
-                // await update(ref(db, 'users/' + user.uid), updates);
-                updateEmail(user, newEmail).then(() => {
-                }).catch((error) => {});
-            }else{
-                alert("Введите корректный email! Пример: user@example.com"); 
+            if(emailChanged){
+                if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
+                    await updateEmail(user, newEmail);
+                    const updates = {
+                        email: newEmail
+                    };
+                    // 3. Отправляем письмо для верификации нового email
+                    await sendEmailVerification(user);
+                    alert('На новый адрес отправлено письмо для подтверждения.');
+                    await update(ref(db, 'users/' + user.uid), updates);
+                    // updateEmail(user, newEmail).then(() => {
+                    // }).catch((error) => {});
+                }else{
+                    alert("Введите корректный email! Пример: user@example.com"); 
+                }
             }
         }
         if(newName.length>=3){
@@ -164,7 +166,7 @@ async function loadUserData(userRef) {
             const userData = snapshot.val();
             document.getElementById('TextName').value = userData.name || 'Не указано';
             document.getElementById('TextEmail').value = userData.email || 'Не указано';
-            document.getElementById('mailVisible').checked = userData.mailVisible || true;
+            document.getElementById('mailVisible').checked = userData.visible_mail || true;
         }else {
             console.log("Данные пользователя не найдены");
         }
