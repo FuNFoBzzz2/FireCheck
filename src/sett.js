@@ -59,7 +59,7 @@ async function saveUser() {
             }
             const credential = EmailAuthProvider.credential(user.email, password);
             await reauthenticateWithCredential(user, credential);
-            if(passwordChanged && Pas1!=""){
+            if(passwordChanged){
                 if(Pas1.length>=6 && Pas2.length>=6 && passwordChanged){
                     await updatePassword(user, Pas1);
                 }else{
@@ -72,9 +72,8 @@ async function saveUser() {
                     const updates = {
                         email: newEmail
                     };
-                    // 3. Отправляем письмо для верификации нового email
-                    await sendEmailVerification(user);
-                    alert('На новый адрес отправлено письмо для подтверждения.');
+                    // await sendEmailVerification(user);
+                    // alert('На новый адрес отправлено письмо для подтверждения.');
                     await update(ref(db, 'users/' + user.uid), updates);
                     // updateEmail(user, newEmail).then(() => {
                     // }).catch((error) => {});
@@ -100,18 +99,18 @@ async function saveUser() {
     }
 }
 // Функция отправки письма подтверждения
-async function sendEmailVerification(user) {
-    try {
-        const actionCodeSettings = {
-            url: window.location.origin + '/home.html', // Укажите вашу страницу подтверждения
-            handleCodeInApp: true
-        };
-        await sendEmailVerification(user, actionCodeSettings);
-    } catch (error) {
-        console.error('Ошибка отправки письма подтверждения:', error);
-        throw error;
-    }
-}
+// async function sendEmailVerification(user) {
+//     try {
+//         const actionCodeSettings = {
+//             url: window.location.origin + '/home.html', // Укажите вашу страницу подтверждения
+//             handleCodeInApp: true
+//         };
+//         await sendEmailVerification(user, actionCodeSettings);
+//     } catch (error) {
+//         console.error('Ошибка отправки письма подтверждения:', error);
+//         throw error;
+//     }
+// }
 document.getElementById('del-button').addEventListener('click', (e) => {
     e.preventDefault();
     deleteAc();
