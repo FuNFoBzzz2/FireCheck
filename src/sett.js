@@ -96,7 +96,7 @@ async function deleteAc(){
         const credential = EmailAuthProvider.credential(user.email, password);
         await reauthenticateWithCredential(user, credential);
         const userRef = ref(db, 'users/' + user.uid);
-        onDisconnect(userRef).cancel();
+        await onDisconnect(userRef).cancel();
         await deleteUser(user);
         await remove(userRef);
         alert('Ваш аккаунт был успешно удален.');
