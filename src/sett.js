@@ -62,6 +62,8 @@ async function saveUser() {
             if(passwordChanged){
                 if(Pas1.length>=6 && Pas2.length>=6 && passwordChanged){
                     await updatePassword(user, Pas1);
+                    document.getElementById('pass-first').value = "";
+                    document.getElementById('pass-second').value = "";
                 }else{
                     alert("пароли заполнена неверно");
                 }
@@ -81,6 +83,9 @@ async function saveUser() {
                     alert("Введите корректный email! Пример: user@example.com"); 
                 }
             }
+        }
+        if(!passwordChanged){
+            alert("пароли заполнена неверно"); 
         }
         if(newName.length>=3){
             // Обновляем данные 
@@ -165,7 +170,7 @@ async function loadUserData(userRef) {
             const userData = snapshot.val();
             document.getElementById('TextName').value = userData.name || 'Не указано';
             document.getElementById('TextEmail').value = userData.email || 'Не указано';
-            document.getElementById('mailVisible').checked ? userData.visible_mail: true;
+            document.getElementById('mailVisible').checked = userData.visible_mail;
         }else {
             console.log("Данные пользователя не найдены");
         }
