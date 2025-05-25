@@ -49,6 +49,8 @@ async function saveUser() {
         const emailChanged = newEmail !== user.email;
         const passwordChanged = Pas1 === Pas2;
         if(emailChanged || (passwordChanged && Pas1.length>=6 && Pas2.length>=6)){
+            alert(emailChanged ," Почты: ", newEmail, " - ", user.email," Пароли: ", Pas1," ", Pas2," - ", passwordChanged);
+            console.log(emailChanged ," Почты: ", newEmail, " - ", user.email," Пароли: ", Pas1," ", Pas2," - ", passwordChanged);
             const password = prompt('Для подтверждения изменения аккаунта введите ваш пароль:');
             if (!password) {
                 return;
