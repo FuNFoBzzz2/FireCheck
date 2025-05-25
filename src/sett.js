@@ -46,10 +46,9 @@ async function saveUser() {
     const Pas2 = document.getElementById('pass-second').value;
     const mailVisible = document.getElementById('mailVisible').checked;
     try {
-        const emailChanged = newEmail !== user.email;
+        const emailChanged = newEmail.trim().toLowerCase() !== user.email?.trim().toLowerCase();
         const passwordChanged = Pas1 === Pas2;
         if(emailChanged || (passwordChanged && Pas1.length>=6 && Pas2.length>=6)){
-            alert(emailChanged ," Почты: ", newEmail, " - ", user.email," Пароли: ", Pas1," ", Pas2," - ", passwordChanged);
             console.log(emailChanged ," Почты: ", newEmail, " - ", user.email," Пароли: ", Pas1," ", Pas2," - ", passwordChanged);
             const password = prompt('Для подтверждения изменения аккаунта введите ваш пароль:');
             if (!password) {
@@ -77,7 +76,7 @@ async function saveUser() {
             // Обновляем данные 
             const updates = {
                 name: newName,
-                mailVisible: mailVisible
+                visible_mail: mailVisible
             };
             await update(ref(db, 'users/' + user.uid), updates);
             alert('Данные успешно сохранены!');
