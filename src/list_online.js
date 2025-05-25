@@ -1,4 +1,3 @@
-// Инициализация Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, set, onDisconnect, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -70,11 +69,11 @@ async function loadOnlinePlayers() {
         onlyOnce: false
     });
 }
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
         try {
-            update(userRef, {
+            await update(userRef, {
                 Online: true,
             });
             onDisconnect(userRef).update({
