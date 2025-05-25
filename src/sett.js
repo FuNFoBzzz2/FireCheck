@@ -37,6 +37,9 @@ document.getElementById('button-save').addEventListener('click', (e) => {
     e.preventDefault();
     saveUser();
 });
+/////////\
+////
+////
 async function saveUser() {
     const user = auth.currentUser;
     const newName = document.getElementById('TextName').value;
@@ -56,18 +59,26 @@ async function saveUser() {
             }
             const credential = EmailAuthProvider.credential(user.email, password);
             await reauthenticateWithCredential(user, credential);
-            if(Pas1.length>=6 && Pas2.length>=6 && passwordChanged){
-                await updatePassword(user, Pas1);
-            }else{
-                alert("пароли заполнена неверно");
+            if(passwordChanged && Pas1!=""){
+                if(Pas1.length>=6 && Pas2.length>=6 && passwordChanged){
+                    await updatePassword(user, Pas1);
+                }else{
+                    alert("пароли заполнена неверно");
+                }
             }
             if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
                 await updateEmail(user, newEmail);
+                const success = await updateUserEmail(user, newEmail);
+                if (!success) {
+                    document.getElementById('TextEmail').value = user.email;
+                }
                 const updates = {
                     email: newEmail
                 };
+                // 3. Отправляем письмо для верификации нового email
+                await sendEmailVerification(user);
+                alert('Email успешно изменён! На новый адрес отправлено письмо для подтверждения.');
                 await update(ref(db, 'users/' + user.uid), updates);
-                alert('Данные успешно сохранены!');
             }else{
                 alert("Введите корректный email! Пример: user@example.com"); 
             }
