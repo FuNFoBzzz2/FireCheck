@@ -2,6 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getDatabase, ref, get, set, remove, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAv69ST8kfulsnpKoB3Qv-d5tWvwE6s1sk",
@@ -32,6 +33,52 @@ async function handlegohome(){
         }
     }
 }
+document.getElementById('button-save').addEventListener('click', (e) => {
+    e.preventDefault();
+    saveUser();
+});
+async function saveUser() {
+    const user = auth.currentUser;
+    const newName = document.getElementById('TextName').value;
+    const newEmail = document.getElementById('TextEmail').value;
+    // const oldPassword = document.getElementById('TextPassword').value;
+    const Pas1 = document.getElementById('pass-first').value;
+    const Pas2 = document.getElementById('pass-second').value;
+    const mailVisible = document.getElementById('mailVisible').checked;
+    try {
+        const emailChanged = newEmail !== user.email;
+        const passwordChanged = Pas1 === Pas2;
+        // Если меняем email или пароль - требуем подтверждение старым паролем
+        if (emailChanged || passwordChanged) {
+            throw new Error('Для изменения email или пароля введите текущий пароль');
+        }
+        // Реавторизация, если меняются важные данные
+        if (emailChanged || passwordChanged) {
+            const credential = EmailAuthProvider.credential(user.email, user.password);
+            await reauthenticateWithCredential(user, credential);
+        }
+        // Обновляем email в Authentication (если изменился)
+        if (emailChanged) {
+            await updateEmail(user, newEmail);
+        }
+        // Обновляем пароль (если введен новый)
+        if (passwordChanged) {
+            await updatePassword(user, newPassword);
+        }
+        // Обновляем данные в Realtime Database
+        const updates = {
+            name: newName,
+            email: newEmail,
+            mailVisible: mailVisible
+        };
+        await update(ref(db, 'users/' + user.uid), updates);
+        alert('Данные успешно сохранены!');
+    } catch (error) {
+        console.error('Ошибка сохранения:', error);
+        alert(`Ошибка: ${error.message}`);
+    }
+}
+
 document.getElementById('del-button').addEventListener('click', (e) => {
     e.preventDefault();
     deleteAc();
@@ -46,16 +93,12 @@ async function deleteAc(){
         return;
     }
     try {
-        // Создаем credential для реавторизации
         const credential = EmailAuthProvider.credential(user.email, password);
-        // Реавторизуем пользователя
         await reauthenticateWithCredential(user, credential);
-        // Удаляем данные из Realtime Database
         const userRef = ref(db, 'users/' + user.uid);
-        await remove(userRef);
-        // Удаляем аккаунт из Authentication
+        onDisconnect(userRef).cancel();
         await deleteUser(user);
-        // Перенаправляем на страницу входа
+        await remove(userRef);
         alert('Ваш аккаунт был успешно удален.');
         window.location.href = './sign.html';
     } catch (error) {
