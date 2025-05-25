@@ -62,7 +62,7 @@ async function loadOnlinePlayers() {
         // Показываем сообщение, если нет игроков онлайн
         if (onlinePlayersCount === 0) {
             noPlayers.style.display = 'block';
-            playersList.innerHTML = '<div class="no-players-msg">Сейчас никто не играет. Будьте первым!</div>';
+            playersList.innerHTML = '<div class="no-players-msg">Пользователей онлайн нет</div>';
         } else {
             noPlayers.style.display = 'none';
         }
@@ -70,41 +70,18 @@ async function loadOnlinePlayers() {
         onlyOnce: false
     });
 }
-
-// Инициализация при загрузке страницы
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        loadOnlinePlayers();
-    } else {
-        window.location.href = "sign.html";
-    }
-});
-// Обновление списка онлайн пользователей в UI
-function updateOnlineUsersList(users) {
-  const usersList = document.getElementById('online-users-list');
-  usersList.innerHTML = '';
-  
-  Object.keys(users).forEach(uid => {
-    const user = users[uid];
-    const userElement = document.createElement('div');
-    userElement.textContent = user.displayName;
-    usersList.appendChild(userElement);
-  });
-  // Обновляем счетчик
-  document.getElementById('online-count').textContent = Object.keys(users).length;
-}
-
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
         try {
-            await update(userRef, {
+            update(userRef, {
                 Online: true,
             });
             onDisconnect(userRef).update({
                 Online: false,
             });
-            setInterval(loadOnline(), 5000);
+            loadOnlinePlayers();
+            setInterval(loadOnlinePlayers, 5000);
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
         }
