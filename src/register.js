@@ -27,25 +27,29 @@ document.getElementById('submit-reg').addEventListener('click', async function(e
     if (emailRegex.test(email)) {
         if(pas1.length>=6 && pas2.length>=6){
             if(pas1==pas2){
-                const auth = getAuth();
-                const userCredential = await createUserWithEmailAndPassword(auth, email, pas1);
-                const user = userCredential.user;
-                try{
-                // Сохранение данных пользователя
-                    await set(ref(db, 'users/' + user.uid), {
-                        name: name,
-                        email: email,
-                        wins: 0,
-                        loses: 0,
-                        Online: true,
-                        visible_mail: true
-                    });
-                    localStorage.setItem('currentUserUID', user.uid);
-                    window.location.href = "./home.html";
-                    alert("Creating Account");
-                } catch(error) {
-                    alert(error.message);
-                };
+                if(name.length>=3){
+                    const auth = getAuth();
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pas1);
+                    const user = userCredential.user;
+                    try{
+                        // Сохранение данных пользователя
+                        await set(ref(db, 'users/' + user.uid), {
+                            name: name,
+                            email: email,
+                            wins: 0,
+                            loses: 0,
+                            Online: true,
+                            visible_mail: true
+                        });
+                        localStorage.setItem('currentUserUID', user.uid);
+                        window.location.href = "./home.html";
+                        alert("Creating Account");
+                    } catch(error) {
+                        alert(error.message);
+                    };
+                }else{
+                    alert("Имя должо содержать не менее 3 символов!");
+                }
             } else{
                 alert("Пароли не совпадают!");
             }

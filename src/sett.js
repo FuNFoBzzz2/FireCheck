@@ -48,31 +48,40 @@ async function saveUser() {
     try {
         const emailChanged = newEmail !== user.email;
         const passwordChanged = Pas1 === Pas2;
-        // Если меняем email или пароль - требуем подтверждение старым паролем
-        if (emailChanged || passwordChanged) {
-            throw new Error('Для изменения email или пароля введите текущий пароль');
-        }
-        // Реавторизация, если меняются важные данные
-        if (emailChanged || passwordChanged) {
-            const credential = EmailAuthProvider.credential(user.email, user.password);
+        if(emailChanged || (passwordChanged && Pas1.length>=6 && Pas2.length>=6)){
+            const password = prompt('Для подтверждения изменения аккаунта введите ваш пароль:');
+            if (!password) {
+                return;
+            }
+            const credential = EmailAuthProvider.credential(user.email, password);
             await reauthenticateWithCredential(user, credential);
+            if(Pas1.length>=6 && Pas2.length>=6 && passwordChanged){
+                await updatePassword(user, Pas1);
+            }else{
+                alert("пароли заполнена неверно");
+            }
+            if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
+                await updateEmail(user, newEmail);
+                const updates = {
+                    email: newEmail
+                };
+                await update(ref(db, 'users/' + user.uid), updates);
+                alert('Данные успешно сохранены!');
+            }else{
+                alert("Введите корректный email! Пример: user@example.com"); 
+            }
         }
-        // Обновляем email в Authentication (если изменился)
-        if (emailChanged) {
-            await updateEmail(user, newEmail);
+        if(newName.length>=3){
+            // Обновляем данные 
+            const updates = {
+                name: newName,
+                mailVisible: mailVisible
+            };
+            await update(ref(db, 'users/' + user.uid), updates);
+            alert('Данные успешно сохранены!');
+        }else{
+            alert("Имя должо содержать не менее 3 символов!");
         }
-        // Обновляем пароль (если введен новый)
-        if (passwordChanged) {
-            await updatePassword(user, newPassword);
-        }
-        // Обновляем данные в Realtime Database
-        const updates = {
-            name: newName,
-            email: newEmail,
-            mailVisible: mailVisible
-        };
-        await update(ref(db, 'users/' + user.uid), updates);
-        alert('Данные успешно сохранены!');
     } catch (error) {
         console.error('Ошибка сохранения:', error);
         alert(`Ошибка: ${error.message}`);
