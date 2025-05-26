@@ -37,8 +37,8 @@ async function handlegohome(){
                     remove(specificInvitationRef);
                     console.log("Приглашение успешно удалено");
                 }
-            });
-        }
+                });
+            }
             window.location.href = "./home.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
@@ -55,6 +55,8 @@ onAuthStateChanged(auth, async (user) => {
             onDisconnect(userRef).update({
                 Online: false,
             });
+            await checkInvitation(user);
+            onValue(ref(db, 'letter'), () => checkInvitations(user));
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
         }
@@ -62,3 +64,16 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "./sign.html";
     }
 });
+async function checkInvitation(user) {
+    if (!user) return;
+    const invitationsRef = ref(db, 'letter');
+    const snapshot = await get(invitationsRef);
+    let hasInvitation = false;
+    snapshot.forEach((childSnapshot) => {
+        const invitation = childSnapshot.val();
+        if (invitation.from === user.uid) {
+            hasInvitation = true;
+        }
+    });
+    if(!hasInvitation){handlegohome();}
+}

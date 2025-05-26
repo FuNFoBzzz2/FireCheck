@@ -64,6 +64,8 @@ onAuthStateChanged(auth, async (user) => {
                 Online: false,
             });
             await loadUserData(userRef);
+            await checkInvitations(user);
+            onValue(ref(db, 'letter'), () => checkInvitations(user));
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
         }
@@ -95,4 +97,37 @@ async function loadUserData(userRef) {
     } catch (error) {
         console.error("Ошибка загрузки данных:", error);
     }
+}
+async function checkInvitations(user) {
+    if (!user) return;
+    const invitationsRef = ref(db, 'letter');
+    const snapshot = await get(invitationsRef);
+    const inviteContainer = document.querySelector('.invite-container');
+    if (!snapshot.exists()) {
+        inviteContainer.style.display = 'none';
+        return;
+    }
+    let hasInvitation = false;
+    snapshot.forEach((childSnapshot) => {
+        const invitation = childSnapshot.val();
+        if (invitation.to === user.uid) {
+            hasInvitation = true;
+            // Заполняем данные приглашения
+            const inviterRef = ref(db, `users/${invitation.from}`);
+            const inviterSnapshot = get(inviterRef);
+            const inviterData = inviterSnapshot.val();
+            if (inviterData) {
+                document.querySelector('Player_Name').textContent = inviterData.name || 'Без имени';
+                document.querySelector('Player_Email').textContent = inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
+                document.querySelector('Player_WL').textContent = `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
+                document.querySelector('accept_play').href = `./game.html?opponent=${invitation.from}`;
+                document.querySelector('button_delinvite').addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        await remove(childSnapshot.ref);
+                        inviteContainer.style.display = 'none';
+                    });
+            }
+        }
+    });
+    inviteContainer.style.display = hasInvitation ? 'block' : 'none';
 }
