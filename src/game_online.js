@@ -1,6 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, get, update, set, onDisconnect, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    getDatabase, ref, get, update, set, onDisconnect, 
+    onValue, remove, serverTimestamp, query, orderByChild, equalTo
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, onAuthStateChanged, signInAnonymously 
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAv69ST8kfulsnpKoB3Qv-d5tWvwE6s1sk",
@@ -170,9 +174,10 @@ function setupGameListener(user) {
         if (!gameData) return;
         // Определяем цвет текущего игрока
         if(gameData.oponent==user.uid){
-            turn = gameData.color === 'white' ? 'black' : 'white';
-        }else{
             turn = gameData.color === 'white' ? 'white' : 'black';
+        }else{
+            turn = gameData.color === 'white' ? 'black' : 'white';
+            
         }
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
