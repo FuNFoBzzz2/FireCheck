@@ -141,8 +141,8 @@ async function checkInvitations(user) {
                             alert("Не удалось отклонить приглашение");
                         }
                     });
-            } catch{
-
+            } catch(error) {
+                console.error("Ошибка загрузки данных:", error);
             }
         }
     }));
