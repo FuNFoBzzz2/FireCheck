@@ -72,36 +72,47 @@ onAuthStateChanged(auth, async (user) => {
                 Online: false,
             });
             writemodul(userRef);
+            // Получатель
+            const invitationsRef = ref(db, 'letter/'+user.uid);
+            const invitgame = await get(invitationsRef);
+            if (invitgame.exists()) {
+                const myInvitations = invitgame.val();
+                gameRef = ref(db, `room/${myInvitations.from}`);
+                await update(gameRef, {
+                    oponent: user.uid
+                });
+                await remove(invitationsRef);
+            }
+            // Проверяем комнату пользователя
             gameRef = ref(db, `room/${user.uid}`);
             const gameSnapshot = await get(gameRef);
-            if (gameSnapshot.exists()){
+            if (gameSnapshot.exists()) {
                 const gamebase = gameSnapshot.val();
-                if(gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null){
+                if (gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null) {
                     setmadeoponent(gamebase.oponent);
                     setupGameListener(user);
-            // await checkInvitation(user);
-                }else{
+                } else {
                     const opGroup = document.getElementById('oponent_class');
                     opGroup.style.display = 'none';
-                }
-            }else{
-                onValue(ref(db, 'letter'), (snapshot) => {
-                if (!snapshot.exists()) {
-                    handlegohome("Приглашение было отклонено другим игроком");
-                    return;
-                }
-                let invitationExists = false;
-                snapshot.forEach((childSnapshot) => {
-                    const invitation = childSnapshot.val();
-                    if (invitation.from === user.uid || invitation.to === user.uid) {
-                        invitationExists = true;
-                        currentInvitationRef = ref(db, `letter/${childSnapshot.key}`);
+                    const InvitationRef = ref(db, 'letter');
+                    const outgoingSnapshot = await get(query(InvitationRef, orderByChild('from'), equalTo(user.uid)));
+                    if (!outgoingSnapshot.exists()) {
+                        const incomingSnapshot = await get(query(InvitationRef, orderByChild('to'), equalTo(user.uid)));
+                        if (!incomingSnapshot.exists()) {
+                            handlegohome("Приглашение было отклонено другим игроком");
+                        }
                     }
-                });
-                if (!invitationExists) {
-                    handlegohome("Приглашение было отклонено другим игроком");
                 }
-            });
+            } else {
+                // Если комнаты нет - проверяем приглашения с задержкой
+                setTimeout(async () => {
+                    gameRef = ref(db, `room`); 
+                    const gameoponentRef = await get(query(gameRef, orderByChild('oponent'), equalTo(user.uid)));
+                    gameRef = ref(db, `room/${gameoponentRef}`); 
+                    const gamebase = gameoponentRef.val();
+                    setmadeoponent(gamebase);
+                    setupGameListener(user);
+                }, 2000); // Даем 2 секунды на обработку приглашений
             }
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
@@ -152,13 +163,17 @@ async function writemodul(userRef){
     }
 }
 //Ш А Ш К И
-
+ 
 function setupGameListener(user) {
     onValue(gameRef, (snapshot) => {
         const gameData = snapshot.val();
         if (!gameData) return;
         // Определяем цвет текущего игрока
-        turn = gameData.color === 'white' ? 'white' : 'black';
+        if(gameData.oponent==user.uid){
+            turn = gameData.color === 'white' ? 'black' : 'white';
+        }else{
+            turn = gameData.color === 'white' ? 'white' : 'black';
+        }
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
         whitepiece = gameData.whitepiece || [];

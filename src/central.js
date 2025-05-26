@@ -139,11 +139,6 @@ async function checkInvitations(user) {
                     document.getElementById('accept_play').onclick = async (e) => {
                         e.preventDefault();
                         try {
-                        const inviterRef = ref(db, `room/${invitation.from}`);
-                        await update(inviterRef, {
-                            oponent: user.uid
-                        }); 
-                        await remove(currentInvitationRef);
                         window.location.href = `./party`;
                         }catch (error) {
                             console.error("Ошибка при отклонении приглашения:", error);
