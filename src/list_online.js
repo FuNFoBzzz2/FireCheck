@@ -63,7 +63,7 @@ async function loadOnlinePlayers() {
             playersList.appendChild(playerElement);
         }
         // Добавляем обработчики для всех кнопок приглашения
-        document.querySelectorAll('.invite-btn').forEach(btn => {
+        document.querySelectorAll('href').forEach(btn => {
             btn.addEventListener('click', sendInvitation);
         });
         if (onlinePlayersCount === 0) {
