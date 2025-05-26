@@ -104,7 +104,6 @@ async function loadUserData(userRef) {
     }
 }
 async function checkInvitations(user) {
-    console.log("-1");
     if (!user) return;
     const invitationsRef = ref(db, 'letter');
     const snapshot = await get(invitationsRef);
@@ -114,37 +113,59 @@ async function checkInvitations(user) {
         currentInvitationRef = null;
         return;
     }
-    console.log("0");
     let hasInvitation = false;
-    await Promise.all(Object.entries(snapshot.val()).map(async ([key, invitation]) => {
-        if (key === user.uid) {
-            console.log("1");
+    // Преобразуем snapshot в массив для обработки
+    const invitations = [];
+    snapshot.forEach((childSnapshot) => {
+        invitations.push({
+            key: childSnapshot.key,
+            ...childSnapshot.val()
+        });
+    });
+    // Обрабатываем все приглашения
+    for (const invitation of invitations) {
+        if (invitation.to === user.uid) {
             hasInvitation = true;
-            currentInvitationRef = ref(db, `letter/${key}`);
-            try{
-                const inviterRef = ref(db, `users/${key}`);
-                const inviterSnapshot = get(inviterRef);
+            currentInvitationRef = ref(db, `letter/${invitation.key}`);
+            try {
+                // Получаем данные отправителя
+                const inviterRef = ref(db, `users/${invitation.from}`);
+                const inviterSnapshot = await get(inviterRef);
                 const inviterData = inviterSnapshot.val();
-                    console.log("2");
-                    document.querySelector('Player_Name').textContent = inviterData.name || 'Без имени';
-                    document.querySelector('Player_Email').textContent = inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
-                    document.querySelector('Player_WL').textContent = `${inviterData.wins} / ${inviterData.loses}`;
-                    document.querySelector('accept_play').href = `./game.html?opponent=${invitation.from}`;
-                    document.querySelector('button_delinvite').addEventListener('click', async (e) => {
+                if (inviterData) {
+                    // Используем getElementById вместо querySelector
+                    document.getElementById('Player_Name').textContent = inviterData.name || 'Без имени';
+                    document.getElementById('Player_Email').textContent = 
+                        inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
+                    document.getElementById('Player_WL').textContent = 
+                        `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
+                    // Обработка кнопки "Принять"
+                    document.getElementById('accept_play').onclick = (e) => {
                         e.preventDefault();
-                        try{
-                            await remove(childSnapshot.ref);
-                            currentInvitationRef = null;
+                        window.location.href = `./game.html?opponent=${invitation.from}`;
+                    };
+                    // Обработка кнопки "Отклонить"
+                    const declineBtn = document.getElementById('button_delinvite');
+                    // Удаляем старые обработчики
+                    declineBtn.replaceWith(declineBtn.cloneNode(true));
+                    // Добавляем новый обработчик
+                    document.getElementById('button_delinvite').onclick = async (e) => {
+                        e.preventDefault();
+                        try {
+                            await remove(currentInvitationRef);
                             inviteContainer.style.display = 'none';
-                        }catch(error){
+                            currentInvitationRef = null;
+                        } catch (error) {
                             console.error("Ошибка при отклонении приглашения:", error);
                             alert("Не удалось отклонить приглашение");
                         }
-                    });
-            } catch(error) {
-                console.error("Ошибка загрузки данных:", error);
+                    };
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки данных приглашающего:", error);
             }
+            break; // Обрабатываем только первое найденное приглашение
         }
-    }));
+    }
     inviteContainer.style.display = hasInvitation ? 'block' : 'none';
 }
