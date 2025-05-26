@@ -16,35 +16,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+let currentInvitationRef = null;
 
 document.getElementById('leave').addEventListener('click', (e) => {
     e.preventDefault();
     handlegohome();
 });
-async function handlegohome(){
+
+async function handlegohome(message = null) {
     const user = auth.currentUser;
     if (user) {
         try {
-            const invitationRef = ref(db, 'letter');
-            const snapshot = await get(invitationRef);
-            if (snapshot.exists()) {
-                let invitationToDelete = false;
-                snapshot.forEach((childSnapshot) => {
-                const invitation = childSnapshot.val();
-                if (invitation.from === user.uid) {
-                    invitationToDelete = true; 
-                    const specificInvitationRef = ref(db, `letter/${childSnapshot.key}`);
-                    remove(specificInvitationRef);
-                    console.log("Приглашение успешно удалено");
-                }
-                });
+            if (currentInvitationRef) {
+                await remove(currentInvitationRef);
             }
+            
+            if (message) {
+                alert(message);
+            }
+            
             window.location.href = "./home.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
         }
-    }else{console.log("Пользователь не найден");}
+    } else {
+        console.log("Пользователь не найден");
+    }
 }
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
@@ -55,25 +54,59 @@ onAuthStateChanged(auth, async (user) => {
             onDisconnect(userRef).update({
                 Online: false,
             });
+            
+            // Проверяем приглашения при загрузке
             await checkInvitation(user);
-            onValue(ref(db, 'letter'), () => checkInvitations(user));
+            
+            // Слушаем изменения в приглашениях
+            onValue(ref(db, 'letter'), (snapshot) => {
+                if (!snapshot.exists()) {
+                    handlegohome("Приглашение было отклонено другим игроком");
+                    return;
+                }
+                
+                let invitationExists = false;
+                snapshot.forEach((childSnapshot) => {
+                    const invitation = childSnapshot.val();
+                    if (invitation.from === user.uid || invitation.to === user.uid) {
+                        invitationExists = true;
+                        currentInvitationRef = ref(db, `letter/${childSnapshot.key}`);
+                    }
+                });
+                
+                if (!invitationExists) {
+                    handlegohome("Приглашение было отклонено другим игроком");
+                }
+            });
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
         }
-    }else {
+    } else {
         window.location.href = "./sign.html";
     }
 });
+
 async function checkInvitation(user) {
     if (!user) return;
+    
     const invitationsRef = ref(db, 'letter');
     const snapshot = await get(invitationsRef);
+    
+    if (!snapshot.exists()) {
+        handlegohome();
+        return;
+    }
+    
     let hasInvitation = false;
     snapshot.forEach((childSnapshot) => {
         const invitation = childSnapshot.val();
-        if (invitation.from === user.uid) {
+        if (invitation.from === user.uid || invitation.to === user.uid) {
             hasInvitation = true;
+            currentInvitationRef = ref(db, `letter/${childSnapshot.key}`);
         }
     });
-    if(!hasInvitation){handlegohome();}
+    
+    if (!hasInvitation) {
+        handlegohome();
+    }
 }
