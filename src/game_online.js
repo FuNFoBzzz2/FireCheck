@@ -256,13 +256,13 @@ function collectboard(){
                 if(whitepi){
                     if(whitepi[2]=="false"){
                         addPiece(cell, "white", "false"); 
-                    }else{addPiece(cell, "white", "true"); }
+                    }else{addPiece(cell, "white", "false"); }
                 }
                 const blackpi = blackpiece.find(([r, c, kg]) => r===row && c ===col)
                 if(blackpi){
                     if(blackpi[2]== "false"){
                         addPiece(cell, "black", "false"); 
-                    }else{addPiece(cell, "black", "true");  }
+                    }else{addPiece(cell, "black", "false");  }
                 } 
                 cell.addEventListener("click", onCellClick);
                 board.appendChild(cell);
