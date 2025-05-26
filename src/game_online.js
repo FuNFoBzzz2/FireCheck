@@ -304,3 +304,59 @@ function PiecesPosition() {
         }
     });
 }
+function onCellClick(e) {
+    //console.log("Click"); 
+    console.log("Ne proshlo", turnmatch ,"  - ==Match ", turn ,"  - ==turn "); 
+    if(turnmatch==turn){
+        //console.log("Yslovie", turnmatch ,"  - Match ", turn ,"  - turn "); 
+    //removepoint()
+    const cell = e.target.closest(".cell");
+    if (!cell) return;
+    const piece = cell.querySelector(".piece");
+    if (selectedPiece && !piece) {
+        const startRow = parseInt(selectedPiece.parentElement.dataset.row);
+        const startCol = parseInt(selectedPiece.parentElement.dataset.col);
+
+        const endRow = parseInt(cell.dataset.row);
+        const endCol = parseInt(cell.dataset.col);
+        if (selectedPiece.dataset.king == "false") {
+            console.log(`Шашка выбрана`);
+            if(canMoveRegular(selectedPiece, startRow, startCol, endRow, endCol, -1)){
+                console.log(`Шашка ходит (${startRow}, ${startCol}) на (${endRow}, ${endCol})`);
+                movePiece(selectedPiece, cell);
+                selectedPiece = null;
+            }
+        } else {
+            console.log(`Королева выбрана`);
+            if(canMoveKing(selectedPiece, startRow, startCol, endRow, endCol)){
+                console.log(`Королева ходит (${startRow}, ${startCol}) на (${endRow}, ${endCol})`);
+                moveKing(selectedPiece, cell);
+                selectedPiece = null;
+            }
+        }
+    } 
+    else if (piece && piece.dataset.color == turn) {
+        if (checkAllPiece()) {
+            if (possiblecapture(piece)) {
+                if (piece.dataset.king == "false") {
+                    selectedPiece = piece;
+                    possiblemoves(selectedPiece, cell);
+                } 
+                else {
+                    possiblemovesKing(piece);
+                    selectedPiece = piece;
+                }
+            } 
+        } else {
+            if (piece.dataset.king == "false") {
+                selectedPiece = piece;
+                possiblemoves(selectedPiece, cell);
+            } 
+            else {
+                possiblemovesKing(piece); 
+                selectedPiece = piece;
+            }
+        }
+    } 
+}
+}
