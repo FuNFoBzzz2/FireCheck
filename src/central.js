@@ -125,7 +125,6 @@ async function checkInvitations(user) {
                 const inviterRef = ref(db, `users/${key}`);
                 const inviterSnapshot = get(inviterRef);
                 const inviterData = inviterSnapshot.val();
-                if (inviterData) {
                     console.log("2");
                     document.querySelector('Player_Name').textContent = inviterData.name || 'Без имени';
                     document.querySelector('Player_Email').textContent = inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
@@ -142,7 +141,6 @@ async function checkInvitations(user) {
                             alert("Не удалось отклонить приглашение");
                         }
                     });
-                }
             } catch{
 
             }
