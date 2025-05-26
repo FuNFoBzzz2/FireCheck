@@ -122,33 +122,26 @@ async function checkInvitations(user) {
             ...childSnapshot.val()
         });
     });
-    // Обрабатываем все приглашения
     for (const invitation of invitations) {
         if (invitation.to === user.uid) {
             hasInvitation = true;
             currentInvitationRef = ref(db, `letter/${invitation.key}`);
             try {
-                // Получаем данные отправителя
                 const inviterRef = ref(db, `users/${invitation.from}`);
                 const inviterSnapshot = await get(inviterRef);
                 const inviterData = inviterSnapshot.val();
                 if (inviterData) {
-                    // Используем getElementById вместо querySelector
                     document.getElementById('Player_Name').textContent = inviterData.name || 'Без имени';
                     document.getElementById('Player_Email').textContent = 
                         inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
                     document.getElementById('Player_WL').textContent = 
                         `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
-                    // Обработка кнопки "Принять"
                     document.getElementById('accept_play').onclick = (e) => {
                         e.preventDefault();
                         window.location.href = `./game.html?opponent=${invitation.from}`;
                     };
-                    // Обработка кнопки "Отклонить"
                     const declineBtn = document.getElementById('button_delinvite');
-                    // Удаляем старые обработчики
                     declineBtn.replaceWith(declineBtn.cloneNode(true));
-                    // Добавляем новый обработчик
                     document.getElementById('button_delinvite').onclick = async (e) => {
                         e.preventDefault();
                         try {

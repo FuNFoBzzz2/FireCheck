@@ -30,11 +30,9 @@ async function handlegohome(message = null) {
             if (currentInvitationRef) {
                 await remove(currentInvitationRef);
             }
-            
             if (message) {
                 alert(message);
             }
-            
             window.location.href = "./home.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
@@ -54,17 +52,13 @@ onAuthStateChanged(auth, async (user) => {
             onDisconnect(userRef).update({
                 Online: false,
             });
-            
-            // Проверяем приглашения при загрузке
+            writemodul(userRef);
             await checkInvitation(user);
-            
-            // Слушаем изменения в приглашениях
             onValue(ref(db, 'letter'), (snapshot) => {
                 if (!snapshot.exists()) {
                     handlegohome("Приглашение было отклонено другим игроком");
                     return;
                 }
-                
                 let invitationExists = false;
                 snapshot.forEach((childSnapshot) => {
                     const invitation = childSnapshot.val();
@@ -73,7 +67,6 @@ onAuthStateChanged(auth, async (user) => {
                         currentInvitationRef = ref(db, `letter/${childSnapshot.key}`);
                     }
                 });
-                
                 if (!invitationExists) {
                     handlegohome("Приглашение было отклонено другим игроком");
                 }
@@ -85,28 +78,21 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "./sign.html";
     }
 });
-
-async function checkInvitation(user) {
-    if (!user) return;
-    
-    const invitationsRef = ref(db, 'letter');
-    const snapshot = await get(invitationsRef);
-    
-    if (!snapshot.exists()) {
-        handlegohome();
-        return;
+async function writemodul(userRef){
+    try{
+    const snapshot = await get(userRef);
+    const userData = snapshot.val();
+    document.getElementById('player_Name').textContent = userData.name;
+    const emailElement = document.getElementById('player_Email')
+    if(userData.visible_mail){
+        emailElement.textContent = userData.email;
+    } else{
+        const emailGroup = emailElement.closest('.form-group');
+        emailGroup.style.display = 'none';
     }
-    
-    let hasInvitation = false;
-    snapshot.forEach((childSnapshot) => {
-        const invitation = childSnapshot.val();
-        if (invitation.from === user.uid || invitation.to === user.uid) {
-            hasInvitation = true;
-            currentInvitationRef = ref(db, `letter/${childSnapshot.key}`);
-        }
-    });
-    
-    if (!hasInvitation) {
-        handlegohome();
+    document.getElementById('player_W/L').textContent = `${userData.wins} / ${userData.loses}`;
+    }catch (error) {
+        console.error("Ошибка загрузки данных пользователя:", error);
     }
 }
+
