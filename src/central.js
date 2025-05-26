@@ -16,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
+let currentInvitationRef = null;
 
 document.getElementById('sett-button').addEventListener('click', (e) => {
     e.preventDefault();
@@ -65,7 +66,7 @@ onAuthStateChanged(auth, async (user) => {
             });
             await loadUserData(userRef);
             await checkInvitations(user);
-            onValue(ref(db, 'letter'), () => checkInvitations(user));
+            setupInvitationListener(user);
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
         }
@@ -75,7 +76,11 @@ onAuthStateChanged(auth, async (user) => {
             window.location.href = "./sign.html";
     }
 });
-
+function setupInvitationListener(user) {
+    return onValue(ref(db, 'letter'), () => {
+        checkInvitations(user);
+    });
+}
 async function loadUserData(userRef) {
     try {
         const snapshot = await get(userRef);
@@ -105,29 +110,39 @@ async function checkInvitations(user) {
     const inviteContainer = document.querySelector('.invite-container');
     if (!snapshot.exists()) {
         inviteContainer.style.display = 'none';
+        currentInvitationRef = null;
         return;
     }
     let hasInvitation = false;
-    snapshot.forEach((childSnapshot) => {
-        const invitation = childSnapshot.val();
+    await Promise.all(Object.entries(snapshot.val()).map(async ([key, invitation]) => {
         if (invitation.to === user.uid) {
             hasInvitation = true;
-            // Заполняем данные приглашения
-            const inviterRef = ref(db, `users/${invitation.from}`);
-            const inviterSnapshot = get(inviterRef);
-            const inviterData = inviterSnapshot.val();
-            if (inviterData) {
-                document.querySelector('Player_Name').textContent = inviterData.name || 'Без имени';
-                document.querySelector('Player_Email').textContent = inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
-                document.querySelector('Player_WL').textContent = `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
-                document.querySelector('accept_play').href = `./game.html?opponent=${invitation.from}`;
-                document.querySelector('button_delinvite').addEventListener('click', async (e) => {
+            currentInvitationRef = ref(db, `letter/${key}`);
+            try{
+                const inviterRef = ref(db, `users/${invitation.from}`);
+                const inviterSnapshot = get(inviterRef);
+                const inviterData = inviterSnapshot.val();
+                if (inviterData) {
+                    document.querySelector('Player_Name').textContent = inviterData.name || 'Без имени';
+                    document.querySelector('Player_Email').textContent = inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
+                    document.querySelector('Player_WL').textContent = `${inviterData.wins} / ${inviterData.loses}`;
+                    document.querySelector('accept_play').href = `./game.html?opponent=${invitation.from}`;
+                    document.querySelector('button_delinvite').addEventListener('click', async (e) => {
                         e.preventDefault();
-                        await remove(childSnapshot.ref);
-                        inviteContainer.style.display = 'none';
+                        try{
+                            await remove(childSnapshot.ref);
+                            currentInvitationRef = null;
+                            inviteContainer.style.display = 'none';
+                        }catch(error){
+                            console.error("Ошибка при отклонении приглашения:", error);
+                            alert("Не удалось отклонить приглашение");
+                        }
                     });
+                }
+            } catch{
+
             }
         }
-    });
+    }));
     inviteContainer.style.display = hasInvitation ? 'block' : 'none';
 }
