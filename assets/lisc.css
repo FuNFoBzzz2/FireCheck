@@ -90,7 +90,7 @@ body {
   .href:hover {
     background-color: #b9b9b9; /* Цвет фона при наведении */
   }
-  invite-btn {
+  .invite-btn {
     text-align: center; /* Центрируем текст внутри ссылки */
     font-size: 18px; /* Установите размер шрифта */
     max-height: 33px;
