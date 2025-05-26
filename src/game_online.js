@@ -28,22 +28,37 @@ async function handlegohome(){
             const invitationRef = ref(db, 'letter');
             const snapshot = await get(invitationRef);
             if (snapshot.exists()) {
-                let invitationToDelete = null;
+                let invitationToDelete = false;
                 snapshot.forEach((childSnapshot) => {
                 const invitation = childSnapshot.val();
                 if (invitation.from === user.uid) {
-                    invitationToDelete = childSnapshot.key;
+                    invitationToDelete = true; 
+                    const specificInvitationRef = ref(db, `letter/${childSnapshot.key}`);
+                    remove(specificInvitationRef);
+                    console.log("Приглашение успешно удалено");
                 }
             });
-            if (invitationToDelete) {
-                const specificInvitationRef = ref(db, `letter/${invitationToDelete}`);
-                await remove(specificInvitationRef);
-                console.log("Приглашение успешно удалено");
-            }
         }
             window.location.href = "./home.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
         }
-    }
+    }else{console.log("Пользователь не найден");}
 }
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const userRef = ref(db, 'users/' + user.uid);
+        try {
+            await update(userRef, {
+                Online: true,
+            });
+            onDisconnect(userRef).update({
+                Online: false,
+            });
+        } catch (error) {
+            console.error("Ошибка при обновлении статуса:", error);
+        }
+    }else {
+        window.location.href = "./sign.html";
+    }
+});
