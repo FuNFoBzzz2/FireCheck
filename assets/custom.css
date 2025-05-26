@@ -110,3 +110,53 @@ body {
        border-radius: 50%;
        background-color: rgb(71, 95, 246);
   }
+  .list-group{
+    border: 1px solid black;
+    text-decoration: none;
+    padding: 5px;
+    margin-top: 15px;
+    background-color: rgba(0, 0, 0, 0.1);
+    /* width: 70%; */
+  }
+  .Image {
+    background-color: #989898; 
+    width: 60px;
+    height: 60px;
+    border-radius: 5px;
+    border: 1px solid black;
+    float: left; /* Плаваем влево */
+    margin-right: 20px; /* Отступ между изображением и группами форм */
+  }
+    .greenfn{
+    background-color: #37d47e; 
+    text-decoration: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    border: 1px solid black;
+    float: right;  
+  }
+  .left-form{
+    display: flex;
+    flex-direction: column; /* Устанавливаем направление по вертикали */
+    align-items: flex-start;
+    text-decoration: none;
+  }
+  .form-group {
+    text-decoration: none;
+    display: flex; /* Используем Flexbox */
+     align-items: center;  
+     margin-bottom: 15px;
+  }
+
+  .form-label {
+    margin-top: 5px;
+    text-decoration: none;
+    /* margin-bottom: 5px; */
+    font-weight: bold;
+    /* text-align: left;  */
+    /* width: 100%;  */
+  }
+  .form-value {
+    margin-left: 5px;
+  }
