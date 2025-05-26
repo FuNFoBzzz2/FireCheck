@@ -19,6 +19,15 @@ const db = getDatabase(app);
 let currentInvitationRef = null;
 let gameRef = null;
 
+const board = document.getElementById("board");
+const rows = 8;
+const cols = 8;
+let selectedPiece = null;
+let turn;
+let turnmatch = "white";
+let  blackpiece = [];
+let  whitepiece = [];
+
 document.getElementById('leave').addEventListener('click', (e) => {
     e.preventDefault();
     handlegohome();
@@ -64,7 +73,8 @@ onAuthStateChanged(auth, async (user) => {
             });
             writemodul(userRef);
             gameRef = ref(db, `room/${user.uid}`);
-            if(gameRef){
+            const gameSnapshot = await get(gameRef);
+            if (gameSnapshot.exists()){
                 setupGameListener(user);
             // await checkInvitation(user);
             }else{
@@ -111,21 +121,7 @@ async function writemodul(userRef){
     }
 }
 //Ш А Ш К И
-socket.on("state", (players) => {
-    console.log("Current players:", players); 
-    removedesk();
-    turn = players[socket.id]._color;
-    turnmatch = players[socket.id].turn;
-    blackpiece = players[socket.id].blackpiece || [];
-    whitepiece = players[socket.id].whitepiece || [];
-    //console.log(`Your color is: ${turn}`);
-    if(blackpiece.length>0 && whitepiece.length>0){
-        collectboard();
-    } else{
-        initializeBoard();
-    }
-    //console.log("YTIIIDS");
-});
+
 function setupGameListener(user) {
     onValue(gameRef, (snapshot) => {
         const gameData = snapshot.val();
@@ -149,14 +145,7 @@ function setupGameListener(user) {
     });
 }
     // Партия 
-const board = document.getElementById("board");
-const rows = 8;
-const cols = 8;
-let selectedPiece = null;
-let turn;
-let turnmatch = "white";
-let  blackpiece = [];
-let  whitepiece = [];
+
 //Очищение доски
 function removedesk(){
     const existcell = document.querySelectorAll('.cell');
