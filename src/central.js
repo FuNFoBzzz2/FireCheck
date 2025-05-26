@@ -104,6 +104,7 @@ async function loadUserData(userRef) {
     }
 }
 async function checkInvitations(user) {
+    console.log("-1");
     if (!user) return;
     const invitationsRef = ref(db, 'letter');
     const snapshot = await get(invitationsRef);
@@ -113,16 +114,19 @@ async function checkInvitations(user) {
         currentInvitationRef = null;
         return;
     }
+    console.log("0");
     let hasInvitation = false;
     await Promise.all(Object.entries(snapshot.val()).map(async ([key, invitation]) => {
-        if (invitation.to === user.uid) {
+        if (key === user.uid) {
+            console.log("1");
             hasInvitation = true;
             currentInvitationRef = ref(db, `letter/${key}`);
             try{
-                const inviterRef = ref(db, `users/${invitation.from}`);
+                const inviterRef = ref(db, `users/${key}`);
                 const inviterSnapshot = get(inviterRef);
                 const inviterData = inviterSnapshot.val();
                 if (inviterData) {
+                    console.log("2");
                     document.querySelector('Player_Name').textContent = inviterData.name || 'Без имени';
                     document.querySelector('Player_Email').textContent = inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
                     document.querySelector('Player_WL').textContent = `${inviterData.wins} / ${inviterData.loses}`;
