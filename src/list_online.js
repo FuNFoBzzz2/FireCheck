@@ -86,6 +86,14 @@ async function sendInvitation(event) {
             from: currentUser.uid,
             to: opponentId
         });
+        const room = ref(db, `room/`+currentUser.uid);
+        await set(room, {
+                opponent: opponentId,
+                color: Math.random() < 0.5 ? 'white' : 'black',
+                turn: "white",
+                blackpiece: [],
+                whitepiece: []
+        });
         alert('Приглашение отправлено!');
         window.location.href = "./party.html";
     } catch (error) {

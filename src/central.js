@@ -138,7 +138,7 @@ async function checkInvitations(user) {
                         `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
                     document.getElementById('accept_play').onclick = (e) => {
                         e.preventDefault();
-                        window.location.href = `./game.html?opponent=${invitation.from}`;
+                        window.location.href = `./party`;
                     };
                     const declineBtn = document.getElementById('button_delinvite');
                     declineBtn.replaceWith(declineBtn.cloneNode(true));
