@@ -17,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
 let currentInvitationRef = null;
+let gameRef = null;
 
 document.getElementById('leave').addEventListener('click', (e) => {
     e.preventDefault();
@@ -62,8 +63,12 @@ onAuthStateChanged(auth, async (user) => {
                 Online: false,
             });
             writemodul(userRef);
-            await checkInvitation(user);
-            onValue(ref(db, 'letter'), (snapshot) => {
+            gameRef = ref(db, `room/${user.uid}`);
+            if(gameRef){
+                setupGameListener(user);
+            // await checkInvitation(user);
+            }else{
+                onValue(ref(db, 'letter'), (snapshot) => {
                 if (!snapshot.exists()) {
                     handlegohome("Приглашение было отклонено другим игроком");
                     return;
@@ -80,6 +85,7 @@ onAuthStateChanged(auth, async (user) => {
                     handlegohome("Приглашение было отклонено другим игроком");
                 }
             });
+            }
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
         }
@@ -104,4 +110,208 @@ async function writemodul(userRef){
         console.error("Ошибка загрузки данных пользователя:", error);
     }
 }
-
+//Ш А Ш К И
+socket.on("state", (players) => {
+    console.log("Current players:", players); 
+    removedesk();
+    turn = players[socket.id]._color;
+    turnmatch = players[socket.id].turn;
+    blackpiece = players[socket.id].blackpiece || [];
+    whitepiece = players[socket.id].whitepiece || [];
+    //console.log(`Your color is: ${turn}`);
+    if(blackpiece.length>0 && whitepiece.length>0){
+        collectboard();
+    } else{
+        initializeBoard();
+    }
+    //console.log("YTIIIDS");
+});
+function setupGameListener(user) {
+    onValue(gameRef, (snapshot) => {
+        const gameData = snapshot.val();
+        if (!gameData) return;
+        // Определяем цвет текущего игрока
+        turn = gameData.color === 'white' ? 'white' : 'black';
+        turnmatch = gameData.turn;
+        blackpiece = gameData.blackpiece || [];
+        whitepiece = gameData.whitepiece || [];
+        removedesk();
+        if (blackpiece.length > 0 || whitepiece.length > 0) {
+            collectboard();
+        } else {
+            initializeBoard();
+            // Сохраняем начальное состояние в базу
+            update(gameRef, {
+                blackpiece: blackpiece,
+                whitepiece: whitepiece
+            });
+        }
+    });
+}
+    // Партия 
+const board = document.getElementById("board");
+const rows = 8;
+const cols = 8;
+let selectedPiece = null;
+let turn;
+let turnmatch = "white";
+let  blackpiece = [];
+let  whitepiece = [];
+//Очищение доски
+function removedesk(){
+    const existcell = document.querySelectorAll('.cell');
+    existcell.forEach(cell => {cell.parentElement.removeChild(cell);});
+}
+//Сборка доски
+function collectboard(){
+    //console.log("Your color is ", turn);
+    if (turn === "white" ) {
+        console.log("Сборка доски Белые");
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                const whitepi = whitepiece.find(([r, c, kg]) => r===row && c ===col)
+                if(whitepi){
+                    if(whitepi[2]=="false"){
+                        addPiece(cell, "white", "false"); 
+                    }else{addPiece(cell, "white", "true"); }
+                }
+                const blackpi = blackpiece.find(([r, c, kg]) => r===row && c ===col)
+                if(blackpi){
+                    if(blackpi[2]== "false"){
+                        addPiece(cell, "black", "false"); 
+                    }else{addPiece(cell, "black", "true");  }
+                } 
+                cell.addEventListener("click", onCellClick);
+                board.appendChild(cell);
+            } 
+        }
+    }
+    else if(turn === "black"){
+        console.log("Сборка доски Чёрные");
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
+                if(whitePieces){
+                    if(whitePieces[2]=="false"){
+                        addPiece(cell, "white", "false"); 
+                    }else{addPiece(cell, "white", "true"); }
+                }
+                const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
+                if(blackPieces){
+                    //console.log("blackpiece is read");
+                    if(blackPieces[2]== "false"){
+                        addPiece(cell, "black", "false"); 
+                        //console.log("read good");
+                    }else{addPiece(cell, "black", "true");  
+                        //console.log("King read");
+                    }
+                } 
+                cell.addEventListener("click", onCellClick);
+                board.appendChild(cell);
+            } 
+        }
+    }
+}
+//Создание доски
+function initializeBoard() { 
+    for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            if (turn === "white") {
+                //console.log("Press w");
+                if (row < 3 && (row + col) % 2 !== 0) {
+                    addPiece(cell, "black", "false"); 
+                    blackpiece.push([row, col]);
+                } else if (row > 4 && (row + col) % 2 !== 0) {
+                    addPiece(cell, "white", "false");
+                    whitepiece.push([row, col]);
+                }
+            } 
+            if (turn === "black") {
+                //console.log("Press b");
+                if (row < 3 && (row + col) % 2 !== 0) {
+                    addPiece(cell, "white", "false");
+                    whitepiece.push([row, col]);
+                } else if (row > 4 && (row + col) % 2 !== 0) {
+                    addPiece(cell, "black", "false");
+                    blackpiece.push([row, col]);
+                }
+            }
+        
+            cell.addEventListener("click", onCellClick);
+            board.appendChild(cell);
+        }
+    }
+} 
+//Добавление шашки
+function addPiece(cell, color, kg) {
+    const piece = document.createElement("div");
+    piece.classList.add("piece", color);
+    piece.dataset.color = color;
+    if(kg==="false"){
+        piece.dataset.king = "false";
+    }else{
+        piece.dataset.king = "true";
+        piece.classList.add("king");
+    }
+    cell.appendChild(piece);
+}
+//Запись в позиций на доске
+function PiecesPosition() {
+    //console.log("Запись данных");
+    blackpiece = [];
+    whitepiece = [];
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const piece = cell.querySelector('.piece');
+        if (piece) {
+            const color = piece.dataset.color;
+            if(turn ==="white"){
+                if (color === 'black') {
+                    if(piece.dataset.king=="false"){
+                        blackpiece.push([row, col, "false"]);
+                    }else{
+                        //console.log("");
+                        blackpiece.push([row, col, "true"]);
+                    }
+                } else if (color === 'white') {
+                    if(piece.dataset.king=="false"){
+                        whitepiece.push([row, col, "false"]);
+                    }else{
+                        whitepiece.push([row, col, "true"]);
+                    }
+                }
+            } else if(turn ==="black"){
+                if (color === 'black') {
+                    if(piece.dataset.king=="false"){
+                        blackpiece.push([(rows-1)-row, (cols-1)-col, "false"]);
+                    }else{
+                        blackpiece.push([(rows-1)-row, (cols-1)-col, "true"]);
+                    }
+                } else if (color === 'white') {
+                    if(piece.dataset.king=="false"){
+                        whitepiece.push([(rows-1)-row, (cols-1)-col, "false"]);
+                    }else{
+                        whitepiece.push([(rows-1)-row, (cols-1)-col, "true"]);
+                    }
+                }
+            }
+        }
+    });
+}
