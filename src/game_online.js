@@ -119,11 +119,14 @@ onAuthStateChanged(auth, async (user) => {
                         let sendfil =false;
                         alllettersSnapshot.forEach((letterSnapshot) => {
                         const letterData = letterSnapshot.val();
-                            if (letterData.from === user.uid) {
+                            if (letterData.from == user.uid) {
                                 console.log("Скип");
-                                return;
+                                sendfil = true;
                             }
                         });
+                        if(sendfil){
+                            return;
+                        }
                         handlegohome("Выход: нет письма");
                     }else{
                         handlegohome("Приглашение было отклонено другим игроком: нет письма");
