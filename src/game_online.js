@@ -77,9 +77,11 @@ onAuthStateChanged(auth, async (user) => {
             });
             writemodul(userRef);
             // Только письмо
+            
             const invitationsRef = ref(db, 'letter/'+user.uid);
             const invitgame = await get(invitationsRef);
             if (invitgame.exists()) {
+                console.log("Письмо");
                 const myInvitations = invitgame.val();
                 gameRef = ref(db, `room/${myInvitations.from}`);
                 await update(gameRef, {
@@ -94,14 +96,17 @@ onAuthStateChanged(auth, async (user) => {
             const gameRef1 = ref(db, `room/${user.uid}`);
             const gameSnapshot = await get(gameRef1);
             if (gameSnapshot.exists()) {
+                console.log("Комната");
                 const gamebase = gameSnapshot.val();
                 //есть противника
                 if (gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null) {
+                    console.log("Есть противник");
                     gameRef = gameRef1;
                     setmadeoponent(gamebase.oponent);
                     setupGameListener(user);
                     return;
                 } else {
+                    console.log("Нет противника");
                     //нет противника
                     const opGroup = document.getElementById('oponent_class');
                     opGroup.style.display = 'none';
@@ -110,10 +115,12 @@ onAuthStateChanged(auth, async (user) => {
                     const alllettersSnapshot = await get(allletterRef);
                     //Есть письмо
                     if (alllettersSnapshot.exists()) {
+                        console.log("Есть письмо");
                         let sendfil =false;
                         alllettersSnapshot.forEach((letterSnapshot) => {
                         const letterData = letterSnapshot.val();
                             if (letterData.from === user.uid) {
+                                console.log("Скип");
                                 return;
                             }
                         });
@@ -123,6 +130,7 @@ onAuthStateChanged(auth, async (user) => {
                     }
                 }
             } else {
+                console.log("Шиза");
                 // Если комнаты нет
                 setTimeout(async () => {
                     const allRoomsRef = ref(db, 'room');
