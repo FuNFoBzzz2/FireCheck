@@ -55,8 +55,8 @@ async function loadOnlinePlayers() {
                                 <span class="form-value">${player.wins || 0} / ${player.loses || 0}</span>
                             </div>
                         </div>
-                        </div>
                         <button class="invite-btn" data-user-id="${userId}">Пригласить</button>
+                    </div>
                 </div>
             `;
             playersList.appendChild(playerElement);
