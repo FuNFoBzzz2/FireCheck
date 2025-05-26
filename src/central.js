@@ -136,9 +136,19 @@ async function checkInvitations(user) {
                         inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
                     document.getElementById('Player_WL').textContent = 
                         `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
-                    document.getElementById('accept_play').onclick = (e) => {
+                    document.getElementById('accept_play').onclick = async (e) => {
                         e.preventDefault();
+                        try {
+                        const inviterRef = ref(db, `room/${invitation.from}`);
+                        await update(inviterRef, {
+                            oponent: user.uid
+                        }); 
+                        await remove(currentInvitationRef);
                         window.location.href = `./party`;
+                        }catch (error) {
+                            console.error("Ошибка при отклонении приглашения:", error);
+                            alert("Не удалось отклонить приглашение");
+                        }
                     };
                     const declineBtn = document.getElementById('button_delinvite');
                     declineBtn.replaceWith(declineBtn.cloneNode(true));
