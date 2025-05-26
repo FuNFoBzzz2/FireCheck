@@ -76,7 +76,7 @@ onAuthStateChanged(auth, async (user) => {
                 Online: false,
             });
             writemodul(userRef);
-            // Получатель
+            // Только письмо
             const invitationsRef = ref(db, 'letter/'+user.uid);
             const invitgame = await get(invitationsRef);
             if (invitgame.exists()) {
@@ -86,34 +86,59 @@ onAuthStateChanged(auth, async (user) => {
                     oponent: user.uid
                 });
                 await remove(invitationsRef);
+                setmadeoponent(myInvitations.from);
+                setupGameListener(user);
+                return;
             }
-            // Проверяем комнату пользователя
-            gameRef = ref(db, `room/${user.uid}`);
-            const gameSnapshot = await get(gameRef);
+            // Комната 
+            const gameRef1 = ref(db, `room/${user.uid}`);
+            const gameSnapshot = await get(gameRef1);
             if (gameSnapshot.exists()) {
                 const gamebase = gameSnapshot.val();
+                //есть противника
                 if (gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null) {
+                    gameRef = gameRef1;
                     setmadeoponent(gamebase.oponent);
                     setupGameListener(user);
+                    return;
                 } else {
+                    //нет противника
                     const opGroup = document.getElementById('oponent_class');
                     opGroup.style.display = 'none';
-                    const InvitationRef = ref(db, 'letter');
-                    const outgoingSnapshot = await get(query(InvitationRef, orderByChild('from'), equalTo(user.uid)));
-                    if (!outgoingSnapshot.exists()) {
-                        const incomingSnapshot = await get(query(InvitationRef, orderByChild('to'), equalTo(user.uid)));
-                        if (!incomingSnapshot.exists()) {
-                            handlegohome("Приглашение было отклонено другим игроком");
-                        }
+
+                    const allletterRef = ref(db, 'letter');
+                    const alllettersSnapshot = await get(allletterRef);
+                    //Есть письмо
+                    if (alllettersSnapshot.exists()) {
+                        let sendfil =false;
+                        alllettersSnapshot.forEach((letterSnapshot) => {
+                        const letterData = letterSnapshot.val();
+                            if (letterData.from === user.uid) {
+                                return;
+                            }
+                        });
+                        handlegohome("Выход: нет письма");
+                    }else{
+                        handlegohome("Приглашение было отклонено другим игроком: нет письма");
                     }
                 }
             } else {
-                // Если комнаты нет - проверяем приглашения с задержкой
+                // Если комнаты нет
                 setTimeout(async () => {
-                    gameRef = ref(db, `room`); 
-                    const gameoponentRef = await get(query(gameRef, orderByChild('oponent'), equalTo(user.uid)));
-                    gameRef = ref(db, `room/${gameoponentRef}`); 
-                    const gamebase = gameoponentRef.val();
+                    const allRoomsRef = ref(db, 'room');
+                    const allRoomsSnapshot = await get(allRoomsRef);
+                    if (allRoomsSnapshot.exists()) {
+                        allRoomsSnapshot.forEach((roomSnapshot) => {
+                            const roomData = roomSnapshot.val();
+                            if (roomData.oponent === user.uid) {
+                                // Нашли комнату где мы оппонент
+                                gameRef = ref(db, `room/${roomSnapshot.key}`);
+                                setmadeoponent(roomSnapshot.key);
+                                setupGameListener(user);
+                                return;
+                            }
+                        });
+                    }
                     setmadeoponent(gamebase);
                     setupGameListener(user);
                 }, 2000); // Даем 2 секунды на обработку приглашений
