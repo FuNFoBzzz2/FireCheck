@@ -280,7 +280,7 @@ function collectboard(){
                 if(whitePieces){
                     if(whitePieces[2]=="false"){
                         addPiece(cell, "white", "false"); 
-                    }else{addPiece(cell, "white", "true"); }
+                    }else{addPiece(cell, "white", "false"); }
                 }
                 const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
                 if(blackPieces){
@@ -288,7 +288,7 @@ function collectboard(){
                     if(blackPieces[2]== "false"){
                         addPiece(cell, "black", "false"); 
                         //console.log("read good");
-                    }else{addPiece(cell, "black", "true");  
+                    }else{addPiece(cell, "black", "false");  
                         //console.log("King read");
                     }
                 } 
