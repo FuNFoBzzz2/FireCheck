@@ -27,8 +27,17 @@ async function handlegohome(message = null) {
     const user = auth.currentUser;
     if (user) {
         try {
-            if (currentInvitationRef) {
-                await remove(currentInvitationRef);
+            const invitationsRef = ref(db, 'letter');
+            const snapshot = await get(invitationsRef);
+            if (snapshot.exists()) {
+                const deletePromises = [];
+                snapshot.forEach((childSnapshot) => {
+                    const invitation = childSnapshot.val();
+                    if (invitation.from === user.uid) {
+                        deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
+                    }
+                });
+                await Promise.all(deletePromises);
             }
             if (message) {
                 alert(message);
