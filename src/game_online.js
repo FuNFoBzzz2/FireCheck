@@ -210,10 +210,9 @@ function setupGameListener(user) {
         if (!gameData) return;
         // Определяем цвет текущего игрока
         if(gameData.oponent==user.uid){
-            turn = gameData.color === 'white' ? 'white' : 'black';
-        }else{
             turn = gameData.color === 'white' ? 'black' : 'white';
-            
+        }else{
+            turn = gameData.color === 'white' ? 'white' : 'black';
         }
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
