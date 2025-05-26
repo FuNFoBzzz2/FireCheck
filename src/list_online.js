@@ -26,14 +26,16 @@ async function loadOnlinePlayers() {
         playersList.innerHTML = '';
         const playersData = snapshot.val();
         let onlinePlayersCount = 0;
+        
         for (const userId in playersData) {
             const player = playersData[userId];
             if (userId === currentUser.uid || !player.Online) continue;
             onlinePlayersCount++;
+            
             const playerElement = document.createElement('div');
             playerElement.className = 'player-card';
             playerElement.innerHTML = `
-                <a href="game.html?opponent=${userId}" class="link">
+                <div class="player-content">
                     <div class="list-group">
                         <div class="Image"></div>
                         <div class="greenfn"></div>
@@ -54,11 +56,15 @@ async function loadOnlinePlayers() {
                             </div>
                         </div>
                     </div>
-                </a>
+                    <button class="invite-btn" data-user-id="${userId}">Пригласить</button>
+                </div>
             `;
             playersList.appendChild(playerElement);
         }
-        // Показываем сообщение, если нет игроков онлайн
+        // Добавляем обработчики для всех кнопок приглашения
+        document.querySelectorAll('.invite-btn').forEach(btn => {
+            btn.addEventListener('click', sendInvitation);
+        });
         if (onlinePlayersCount === 0) {
             noPlayers.style.display = 'block';
             playersList.innerHTML = '<div class="no-players-msg">Пользователей онлайн нет</div>';
@@ -68,6 +74,24 @@ async function loadOnlinePlayers() {
     }, {
         onlyOnce: false
     });
+}
+async function sendInvitation(event) {
+    const opponentId = event.target.getAttribute('data-user-id');
+    const currentUser = auth.currentUser;
+    if (!currentUser || !opponentId) return;
+    try {
+        // Создаем запись о приглашении
+        const invitationRef = ref(db, `letter/`+opponentId);
+        await set(invitationRef, {
+            from: currentUser.uid,
+            to: opponentId
+        });
+        alert('Приглашение отправлено!');
+        window.location.href = "./party.html";
+    } catch (error) {
+        console.error("Ошибка при отправке приглашения:", error);
+        alert('Не удалось отправить приглашение');
+    }
 }
 onAuthStateChanged(auth, async (user) => {
     if (user) {
