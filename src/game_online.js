@@ -221,7 +221,9 @@ function setupGameListener(user) {
         removedesk();
         if (blackpiece.length > 0 || whitepiece.length > 0) {
             collectboard();
+            console.log("Сборка доски из массива");
         } else {
+            console.log("Сборка доски с 0");
             initializeBoard();
             // Сохраняем начальное состояние в базу
             update(gameRef, {
