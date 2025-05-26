@@ -75,8 +75,15 @@ onAuthStateChanged(auth, async (user) => {
             gameRef = ref(db, `room/${user.uid}`);
             const gameSnapshot = await get(gameRef);
             if (gameSnapshot.exists()){
-                setupGameListener(user);
+                const gamebase = gameSnapshot.val();
+                if(gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null){
+                    setmadeoponent(gamebase.oponent);
+                    setupGameListener(user);
             // await checkInvitation(user);
+                }else{
+                    const opGroup = document.getElementById('oponent_class');
+                    opGroup.style.display = 'none';
+                }
             }else{
                 onValue(ref(db, 'letter'), (snapshot) => {
                 if (!snapshot.exists()) {
@@ -103,6 +110,30 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "./sign.html";
     }
 });
+async function setmadeoponent(opponentUid) {
+    try {
+        const opponentRef = ref(db, 'users/' + opponentUid);
+        const snapshot = await get(opponentRef);
+        if (snapshot.exists()) {
+            const opponentData = snapshot.val();
+            document.getElementById('op_Name').textContent = opponentData.name ;
+            const opEmailElement = document.getElementById('op_Email');
+            if (opponentData.visible_mail) {
+                opEmailElement.textContent = opponentData.email || 'Не указано';
+            } else {
+                const emailGroup = opEmailElement.closest('.form-group');
+                emailGroup.style.display = 'none';
+            }
+            document.getElementById('op_W/L').textContent = `${opponentData.wins || 0} / ${opponentData.loses || 0}`;
+            const opGroup = document.getElementById('oponent_class');
+            opGroup.style.display = 'block';
+        } else {
+            console.log("Данные оппонента не найдены");
+        }
+    } catch (error) {
+        console.error("Ошибка при загрузке данных оппонента:", error);
+    }
+}
 async function writemodul(userRef){
     try{
     const snapshot = await get(userRef);

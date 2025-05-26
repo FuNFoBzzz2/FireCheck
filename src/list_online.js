@@ -88,7 +88,6 @@ async function sendInvitation(event) {
         });
         const room = ref(db, `room/`+currentUser.uid);
         await set(room, {
-                opponent: opponentId,
                 color: Math.random() < 0.5 ? 'white' : 'black',
                 turn: "white",
                 blackpiece: [],
