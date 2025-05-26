@@ -90,6 +90,29 @@ body {
   .href:hover {
     background-color: #b9b9b9; /* Цвет фона при наведении */
   }
+  invite-btn {
+    display: inline-block; /* Чтобы кнопка вела себя как ссылка .href */
+    text-align: center;
+    font-size: 18px;
+    max-height: 33px;
+    margin-bottom: 10px;
+    font-family: Arial, sans-serif;
+    background-color: #4CAF50; /* Зеленый цвет для кнопки приглашения */
+    color: white; /* Белый текст для лучшей читаемости */
+    border: 1px solid #2E7D32; /* Темно-зеленая граница */
+    margin-left: 10px;
+    padding: 5px 15px; /* Немного больше padding по горизонтали */
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    cursor: pointer; /* Курсор-указатель */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Легкая тень для объема */
+}
+
+.invite-btn:hover {
+    background-color: #3E8E41; /* Темнее при наведении */
+    color: white;
+}
   .greenfn{
     background-color: #37d47e; 
     text-decoration: none;

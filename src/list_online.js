@@ -55,15 +55,14 @@ async function loadOnlinePlayers() {
                                 <span class="form-value">${player.wins || 0} / ${player.loses || 0}</span>
                             </div>
                         </div>
-                        <button class="href" data-user-id="${userId}">Пригласить</button>
+                        <button class="invite-btn" data-user-id="${userId}">Пригласить</button>
                     </div>
-                    
                 </div>
             `;
             playersList.appendChild(playerElement);
         }
         // Добавляем обработчики для всех кнопок приглашения
-        document.querySelectorAll('href').forEach(btn => {
+        document.querySelectorAll('invite-btn').forEach(btn => {
             btn.addEventListener('click', sendInvitation);
         });
         if (onlinePlayersCount === 0) {
