@@ -219,8 +219,8 @@ function setupGameListener(user) {
         whitepiece = gameData.whitepiece || [];
         removedesk();
         if (blackpiece.length > 0 || whitepiece.length > 0) {
+            onsole.log("Сборка доски из массива");
             collectboard();
-            console.log("Сборка доски из массива");
         } else {
             console.log("Сборка доски с 0");
             initializeBoard();
@@ -742,11 +742,16 @@ function moveKing(piece, targetCell){
         }
     }
     PiecesPosition();
-    socket.emit("movement", {
+    update(gameRef, {
         blackpiece: blackpiece, 
         whitepiece: whitepiece, 
-        turnmatch: turnmatch
+        turn: turnmatch
     });
+    // socket.emit("movement", {
+    //     blackpiece: blackpiece, 
+    //     whitepiece: whitepiece, 
+    //     turnmatch: turnmatch
+    // });
     checkGameState();
 }
 //Ход шашки (Доделать)
@@ -793,11 +798,16 @@ function movePiece(piece, targetCell) {
         turnmatch = turnmatch == "white" ? "black" : "white";
     }
     PiecesPosition();
-    socket.emit("movement", {
+    update(gameRef, {
         blackpiece: blackpiece, 
         whitepiece: whitepiece, 
-        turnmatch: turnmatch
+        turn: turnmatch
     });
+    // socket.emit("movement", {
+    //     blackpiece: blackpiece, 
+    //     whitepiece: whitepiece, 
+    //     turnmatch: turnmatch
+    // });
     checkGameState();
     
 }
@@ -842,8 +852,13 @@ function disableBoard() {
       .forEach((cell) => cell.removeEventListener("click", onCellClick));
 }
 PiecesPosition();
-socket.emit("movement", {
-    blackpiece: blackpiece, 
-    whitepiece: whitepiece, 
-    turnmatch: turnmatch
-});
+// update(gameRef, {
+//         blackpiece: blackpiece, 
+//         whitepiece: whitepiece, 
+//         tur: turnmatch
+//     });
+// socket.emit("movement", {
+//     blackpiece: blackpiece, 
+//     whitepiece: whitepiece, 
+//     turnmatch: turnmatch
+// });
