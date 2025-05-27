@@ -41,6 +41,7 @@ async function handlegohome(message = null) {
     const user = auth.currentUser;
     if (user) {
         try {
+             await remove(gameRef);
             const invitationsRef = ref(db, 'letter');
             const snapshot = await get(invitationsRef);
             if (snapshot.exists()) {
