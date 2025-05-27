@@ -99,6 +99,7 @@ onAuthStateChanged(auth, async (user) => {
             if (gameSnapshot.exists()) {
                 console.log("Комната");
                 const gamebase = gameSnapshot.val();
+                gameRef = gameRef1;
                 //есть противника
                 if (gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null) {
                     console.log("Есть противник");
