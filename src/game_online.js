@@ -150,8 +150,8 @@ onAuthStateChanged(auth, async (user) => {
                             }
                         });
                     }
-                    setmadeoponent(gamebase);
-                    setupGameListener(user);
+                    // setmadeoponent(gamebase);
+                    // setupGameListener(user);
                 }, 2000); // Даем 2 секунды на обработку приглашений
             }
         } catch (error) {
@@ -219,7 +219,7 @@ function setupGameListener(user) {
         whitepiece = gameData.whitepiece || [];
         removedesk();
         if (blackpiece.length > 0 || whitepiece.length > 0) {
-            onsole.log("Сборка доски из массива");
+            console.log("Сборка доски из массива");
             collectboard();
         } else {
             console.log("Сборка доски с 0");
@@ -855,7 +855,7 @@ PiecesPosition();
 // update(gameRef, {
 //         blackpiece: blackpiece, 
 //         whitepiece: whitepiece, 
-//         tur: turnmatch
+//         turn: turnmatch
 //     });
 // socket.emit("movement", {
 //     blackpiece: blackpiece, 
