@@ -8,14 +8,21 @@ body {
     width: 100%;
     margin: 0; /* Убираем отступы по умолчанию */
   }
+  .centr-form{
+    display: flex;
+    flex-direction: column; /* Устанавливаем направление по вертикали */
+    align-items: center;
+    text-decoration: none;
+  }
 .container {
     background-color: #e1e1e1;
     text-decoration: none;
     padding: 20px;
+    margin: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     border: 1px solid black;
-    width: 40%; /* Задаем фиксированную ширину для контейнера */
+    width: 404px;
     min-width: 350px;
     max-width: 450px; /* Максимальная ширина контейнера */
   }
@@ -29,15 +36,12 @@ body {
     justify-content: flex-end; /* Выравнивание кнопок вправо */
     /* align-items: center;   */  
   }
-  .list-group{
-    border: 1px solid black;
+  .form-group {
     text-decoration: none;
-    padding: 5px;
-    margin-top: 15px;
-    background-color: rgba(0, 0, 0, 0.1);
-    /* width: 70%; */
+    display: flex; /* Используем Flexbox */
+     align-items: center;  
+     margin-bottom: 15px;
   }
- 
   .Image {
     background-color: #989898; 
     width: 60px;
@@ -53,13 +57,6 @@ body {
     align-items: flex-start;
     text-decoration: none;
   }
-  .form-group {
-    text-decoration: none;
-    display: flex; /* Используем Flexbox */
-     align-items: center;  
-     margin-bottom: 15px;
-  }
-
   .form-label {
     margin-top: 5px;
     text-decoration: none;
@@ -87,24 +84,63 @@ body {
     text-decoration: none; /* Убираем подчеркивание */
     transition: background-color 0.3s ease; /* Плавный переход цвета */
   }
-  .href:hover {
-    background-color: #b9b9b9; /* Цвет фона при наведении */
-  }
-  .greenfn{
-    background-color: #37d47e; 
-    text-decoration: none;
-    width: 8px;
-    height: 8px;
-    border-radius: 4px;
-    border: 1px solid black;
-    float: right;  
-  }
   .link {
-    color: black !important; /* Устанавливаем цвет текста */
-    text-decoration: none !important; /* Убираем подчеркивание */
+    background-color: #cacaca;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid black;
+    width: 30%; /* Задаем фиксированную ширину для контейнера */
+    min-width: 350px;
+    max-width: 450px; /* Максимальная ширина контейнера */
 }
-
-.link:hover {
-    color: rgb(66, 66, 66) !important; /* Цвет текста при наведении */
-    text-decoration: none !important; /* Убираем подчеркивание при наведении */
-}
+.board {
+  /* Используем grid-разметку для создания сетки */
+  display: grid;
+  grid-template-columns: repeat(8, 50px);
+  grid-template-rows: repeat(8, 50px);
+  /* Устанавливаем, что между клетками не будет промежутков */
+  gap: 0;
+  border: 2px solid #333;
+ }
+ 
+ 
+ .cell {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ }
+ 
+ .cell.black {
+  background-color: #747474;
+ }
+ 
+ .cell.white {
+  background-color: #fff;
+ }
+ .piece{
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid;
+      cursor: pointer;
+ }
+ .piece.white {
+  background-color: white;
+ }
+ .piece.black {
+  background-color: rgb(9, 9, 9);
+  border: 1px solid white;
+  }
+ .piece.king {
+  border: 2px solid #fc7f49;
+ }  
+ .point{
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgb(71, 95, 246);
+ }

@@ -47,7 +47,6 @@ body {
   /* display: block; */
   background-color: #989898; 
   margin-bottom: 10px;
-  margin-left: 4px;
   border-radius: 8px;
   padding: 14px;
   max-height: 33px;
@@ -84,7 +83,7 @@ body {
   background-color: #b9b9b9; /* Цвет фона при наведении */
 }
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 .left-form{
   display: flex;
