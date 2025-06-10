@@ -103,7 +103,7 @@ onAuthStateChanged(auth, async (user) => {
                 //есть противника
                 if (gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null) {
                     console.log("Есть противник");
-                    gameRef = gameRef1;
+                    //gameRef = gameRef1;
                     setmadeoponent(gamebase.oponent);
                     setupGameListener(user);
                     return;
@@ -112,30 +112,30 @@ onAuthStateChanged(auth, async (user) => {
                     //нет противника
                     const opGroup = document.getElementById('oponent_class');
                     opGroup.style.display = 'none';
-
                     const allletterRef = ref(db, 'letter');
                     const alllettersSnapshot = await get(allletterRef);
                     //Есть письмо
                     if (alllettersSnapshot.exists()) {
                         console.log("Есть письмо");
-                        let sendfil =false;
+                        // let sendfil =false;
                         alllettersSnapshot.forEach((letterSnapshot) => {
                         const letterData = letterSnapshot.val();
                             if (letterData.from == user.uid) {
                                 console.log("Скип");
-                                sendfil = true;
+                                // sendfil = true;
+                                window.location.reload();
                             }
                         });
-                        if(sendfil){
-                            return;
-                        }
+                        // if(sendfil){
+                        //     return;
+                        // }
                         handlegohome("Выход: нет письма");
                     }else{
                         handlegohome("Приглашение было отклонено другим игроком: нет письма");
                     }
                 }
             } else {
-                console.log("Шиза");
+                console.log("Подключённый");
                 // Если комнаты нет
                 setTimeout(async () => {
                     const allRoomsRef = ref(db, 'room');
