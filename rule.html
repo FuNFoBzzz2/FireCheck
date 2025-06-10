@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assets/rules.css">
+    <title>Profile</title>
+    <script type="module" src="./src/central.js" defer></script>
+</head>
+<body>
+    <div class="invite-container">
+        <div class="invite_link">
+            <div class="invite_image"></div>
+            <div class="invite_form">
+                <div class="form-group">
+                    <label for="name" class="form-label">Имя</label>
+                    <span id="Player_Name" class="form-value"></span>
+                </div>
+                <div class="form-group">
+                    <label for="email" class="form-label">Электронная почта</label>
+                    <span id="Player_Email" class="form-value"></span>
+                </div>
+                <div class="form-group">
+                    <label for="W/L" class="form-label">Побед / Поражений</label>
+                    <span id="Player_WL" class="form-value"></span>
+                </div>
+            </div>
+            <button id="accept_play" class="href">Принять</button>
+            <button id="button_delinvite" type="submit" class="href">Отклонить</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="setting">
+                <button id="home-btn" class="href">Выход</button>
+            </div>
+        </div>
+        <div> <span style="font-family: Arial;"> 
+<a name="rus"></a>
+ 
+    <h3><span style="color: #f16522;">Русские шашки.</span></h3>
+   
+    <div style="text-align: justify;"><b>Состав игры:</b></div>
+   
+    <div style="text-align: justify;">1.<span style="white-space: pre;" class="Apple-tab-span"> </span>Игровая доска 64 (8х8) клетки. Клетки двух контрастных цветов, располагающихся по диагоналям. Обозначение игровых клеток буквенно-цифровое (как на шахматной доске).</div>
+   
+    <div style="text-align: justify;">2.<span style="white-space: pre;" class="Apple-tab-span"> </span> Шашки двух разных цветов по 12 штук.</div>
+   </span> 
+  <div style="text-align: justify;"><span style="font-family: Arial;"> 
+      <br>
+     </span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;"><b>Цель игры:</b></span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Выиграть партию - когда у соперника не осталось ни одной шашки, шашки соперника заблокированы или соперник досрочно признал свое поражение.&nbsp;</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">При невозможности выигрыша любого из участников игры, партия считается законченной в ничью.&nbsp;</span></div>
+ 
+  <div style="text-align: justify;"> <span style="font-family: Arial;"> 
+      <br>
+     </span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;"><b>Правила:</b></span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">В игре принимают участие 2 игрока. Игроки располагаются на противоположных сторонах доски.</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Игровое поле (доска) располагается таким образом, что бы угловое темное поле было расположено &nbsp;с левой стороны игрока (Диаграмма №1).</span></div>
+ 
+  <table style="border-collapse: collapse;" width="100%" cellspacing="1" cellpadding="1"> 
+    <tbody> 
+      <tr><td style="text-align: center;" width="50%"><span style="font-family: Arial;"><img alt="Русские шашки, игровое поле" src="./image/diag1.jpg" title="Русские шашки, игровое поле" width="289" height="288" border="0" align="middle"></span></td> <td style="text-align: center;"><span style="font-family: Arial;"><img alt="Взятие в русских шашках" src="./image/diag2.jpg" title="Взятие в русских шашках" width="298" height="286" border="0" align="middle"> 
+            <br>
+           </span></td> </tr>
+     
+      <tr><td> 
+          <div style="text-align: center;"><span style="font-family: Arial; color: #f16522;">Диаграмма №1</span></div>
+         
+          <div style="font-size: small;"> 
+            <div style="text-align: center;"><span style="font-family: Arial; color: #f16522;">Русские шашки, игровое поле</span></div>
+           </div>
+         </td> <td> 
+          <div style="text-align: center;"><span style="font-family: Arial; color: #f16522;">Диаграмма №2</span></div>
+         
+          <div style="font-size: small;"> 
+            <div style="text-align: center;"><span style="font-family: Arial; color: #f16522;">Взятие в русских шашках</span></div>
+           </div>
+         </td> </tr>
+     </tbody>
+   </table>
+ 
+  <div style="text-align: justify;"> <span style="font-family: Arial;"> 
+      <br>
+     </span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Выбор цвета игроками определяется жребием или по договоренности. Шашки расставляются на трех, ближних к игроку, рядах на темных клетках, как показано на рисунке. Право первого хода обычно принадлежит игроку, который играет белым (светлым) цветом. Ходы осуществляются соперниками поочередно. Ход считается сделанным, если участник игры после перемещения шашки отпустил руку. Если игрок дотронулся до шашки, он обязан ей сделать ход. Если, кто-либо из соперников хочет поправить шашки, обязан предупредить заранее.</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">В начале игры все шашки соперников являются простыми. Простые шашки можно перемещать &nbsp;только вперед по диагоналям на соседнюю свободную клетку.&nbsp;</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Если простая шашка дошла до последней горизонтали, она становится «дамкой» и обозначается переворачиванием (Диаграмма №3). Дамка может перемещаться по диагоналям на любое количество свободных клеток.</span></div>
+ 
+  <table style="border-collapse: collapse;" width="300" cellspacing="1" cellpadding="1" align="right"> 
+    <tbody> 
+      <tr><td style="text-align: center;"><span style="font-family: Arial;"><img alt="Дамки в русских шашках" src="./image/diag3.jpg" title="Дамки в русских шашках" width="298" height="298" border="0" align="middle"></span></td></tr>
+     
+      <tr><td> 
+          <div style="text-align: center;"><span style="font-family: Arial; color: #f16522;">Диаграмма №3</span></div>
+         
+          <div style="font-size: small;"> 
+            <div style="text-align: center;"><span style="font-family: Arial; color: #f16522;">Дамки в русских шашках</span></div>
+           </div>
+         </td></tr>
+     </tbody>
+   </table>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;"><u>Взятие шашки</u> соперника производится, переносом через неё своей, в том случае, если она находится на соседней с простой шашкой диагональной клетке и за ней имеется свободное поле (Диаграмма №2). Если после этого хода имеется продолжение для взятия других шашек соперника, ход продолжается. Шашка (шашки) соперника снимается с доски. Взятие шашки соперника может производиться, как вперед, так и назад, и является обязательной, если перед началом игры не договорились об изменении этого правила.</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Взятие дамкой шашек соперника может осуществляться через любое количество диагональных клеток, при наличии свободного пространства за «жертвой». Если она снова оказывается на одной диагонали рядом или на расстоянии от шашки соперника, за которой находится одно или несколько свободных полей, дамка обязательно должна продолжить взятие последующих и занять любое свободное поле на той же диагонали за последней взятой шашкой.</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">В тех случаях, когда простая шашка при взятии достигает последнего горизонтального ряда и ей предоставляется возможность дальнейшего взятия шашек, то она обязана тем же ходом продолжать бой, но уже на правах дамки.</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">В тех случаях, когда шашка достигла последней горизонтали без взятия и ей после этого предоставляется возможность боя, то она должна бить, при условии, если эта возможность сохранится лишь следующим ходом на правах дамки.</span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Битые шашки снимаются с доски только по окончании хода, повторное «перескакивание» через битые шашки запрещены.</span></div>
+ 
+  <div style="text-align: justify;"> <span style="font-family: Arial;"> 
+      <br>
+     </span></div>
+ 
+  <div style="text-align: justify;"><span style="font-family: Arial;">Данные правила игры в русские шашки являются стандартными, но в них могут вноситься изменения, по обоюдному согласию игроков.</span></div>
+</body>
+</html>

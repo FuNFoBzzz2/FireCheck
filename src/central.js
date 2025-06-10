@@ -17,6 +17,18 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 let currentInvitationRef = null;
+document.getElementById('home-btn').addEventListener('click', (e) => {
+    console.log("Script loaded"); // Добавьте в начало central.js
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (user) {
+        try {
+            window.location.href = "./home.html";
+        } catch (error) {
+            alert("Ошибка при выходе: " + error.message);
+        }
+    }
+});
 
 document.getElementById('sett-button').addEventListener('click', (e) => {
     e.preventDefault();
