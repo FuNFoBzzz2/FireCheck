@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
-    getDatabase, ref, get, update, set, onDisconnect, 
+    getDatabase, ref, get, increment, update, set, onDisconnect, 
     onValue, remove, serverTimestamp, query, orderByChild, equalTo
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, onAuthStateChanged, signInAnonymously 
@@ -40,20 +40,40 @@ document.getElementById('leave').addEventListener('click', (e) => {
 
 async function handlegohome(message = null) {
     const user = auth.currentUser;
+    const leaveparam = true;
     if (user) {
         try {
-             await remove(gameRef);
-            const invitationsRef = ref(db, 'letter');
-            const snapshot = await get(invitationsRef);
-            if (snapshot.exists()) {
-                const deletePromises = [];
-                snapshot.forEach((childSnapshot) => {
-                    const invitation = childSnapshot.val();
-                    if (invitation.from === user.uid) {
-                        deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
+            const gamesnap = await get(gameRef);
+            gamesnap.exists()
+            const gamebase = gamesnap.val();
+            if(gamebase.leave==1){
+                await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
+                push(remove(gameRef));
+                remove(gameRef);
+                const leaveparam = false;
+            }
+            if(leaveparam){
+                const invitationsRef = ref(db, 'letter');
+                const snapshot = await get(invitationsRef);
+                if (snapshot.exists()) {
+                    const deletePromises = [];
+                    snapshot.forEach((childSnapshot) => {
+                        if (childSnapshot.val().from === user.uid) {
+                            deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
+                            remove(gameRef);
+                        }
+                    });
+                    await Promise.all(deletePromises);
+                }
+                if((gameRef==user.uid && gamebase.opponent) || (gamebase.opponent==user.uid)){
+                    if(confirm('Вы уверены, что хотите сдаться?')){
+                        const updates = {loses: increment(1)};
+                        await update(ref(db, 'users/' + user.uid), updates);
+                        await update(gameRef, {
+                            leave: 1
+                        });
                     }
-                });
-                await Promise.all(deletePromises);
+                }
             }
             if (message) {
                 alert(message);
@@ -77,6 +97,9 @@ function setupRoomListener(user) {
         if (!roomData) {
             handlegohome("Комната была удалена");
             return;
+        }
+        if(roomData.leave){
+            handlegohome("Противник сдался!");
         }
         // Обновляем состояние игры при изменениях
         if (roomData.oponent==user.uid) {
