@@ -47,7 +47,7 @@ async function handlegohome(message = null) {
             const gamesnap = await get(gameRef);
             gamesnap.exists()
             const gamebase = gamesnap.val();
-            if(gamebase.leave==1){
+            if(gamebase && gamebase.leave===1){
                 console.log("Пользователь не найден");
                 await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
                 remove(gameRef);
