@@ -32,7 +32,7 @@ let turnmatch = "white";
 let  blackpiece = [];
 let  whitepiece = [];
 let roomListener = null;
-let leaveListener = false;
+let deletePromises = [];
 
 document.getElementById('leave').addEventListener('click', async (e) => {
     e.preventDefault();
@@ -46,35 +46,45 @@ async function handlegohome(message = null) {
     console.log("Выход");
     if (user) {
         try {
+            deletePromises = [];
             const gamesnap = await get(gameRef);
+            if (!gamesnap.exists()) {
+                if (message) alert(message);
+                window.location.href = "./home.html";
+                return;
+            }
             const gameData = gamesnap.val();
+            let shouldProcessExit = true;
             if(gameData && gameData.leave===1){
-                console.log("Победа из-за выхода");
+                console.log("Победа из-за выхода противника");
                 await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
                 await remove(gameRef);
-                leaveparam = false;
+                shouldProcessExit = false;
             }
-            if(leaveparam){
+            if(shouldProcessExit){
                 const invitationsRef = ref(db, 'letter');
                 const snapshot = await get(invitationsRef);
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         if (childSnapshot.val().from === user.uid) {
-                            leaveListener = true;
-                            remove(ref(db, `letter/${childSnapshot.key}`));
-                            remove(gameRef);
+                            deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
+                            //remove(gameRef);
                         }
                     });
-                    await Promise.all(deletePromises);
+                    //await Promise.all(deletePromises);
                 }
-                if((gameData==user.uid && gameData.opponent) || (gameData.opponent==user.uid)){
+                if(gameData && (gameData==user.uid && gameData.opponent) || (gameData.opponent==user.uid)){
                     if(confirm('Вы уверены, что хотите сдаться?')){
-                        const updates = {loses: increment(1)};
-                        await update(ref(db, 'users/' + user.uid), updates);
-                        await update(gameRef, {
-                            leave: 1
-                        });
-                    }
+                        await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
+                        await update(gameRef, {leave: 1});
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        await remove(gameRef);
+                    }else {
+                        return; 
+                    }   
+                }
+                if (deletePromises.length > 0) {
+                    await Promise.all(deletePromises);
                 }
             }
             if (message) {
@@ -94,7 +104,6 @@ function setupRoomListener(user) {
     if (roomListener) {
         roomListener();
     }
-    if(leaveListener){return;}
     roomListener = onValue(gameRef, (snapshot) => {
         const roomData = snapshot.val();
         if (!roomData) {
