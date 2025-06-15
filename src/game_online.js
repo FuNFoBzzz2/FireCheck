@@ -77,8 +77,8 @@ onAuthStateChanged(auth, async (user) => {
                 Online: false,
             });
             writemodul(userRef);
-            // Только письмо
             
+            // проверка письма
             const invitationsRef = ref(db, 'letter/'+user.uid);
             const invitgame = await get(invitationsRef);
             if (invitgame.exists()) {
@@ -93,17 +93,17 @@ onAuthStateChanged(auth, async (user) => {
                 setupGameListener(user);
                 return;
             }
-            // Комната 
+            // проверка своей комната 
             const gameRef1 = ref(db, `room/${user.uid}`);
             const gameSnapshot = await get(gameRef1);
             if (gameSnapshot.exists()) {
-                console.log("Комната");
+                console.log("Комната сущ");
                 const gamebase = gameSnapshot.val();
                 gameRef = gameRef1;
+
                 //есть противника
-                if (gamebase.oponent && gamebase.oponent !== "" && gamebase.oponent !== null) {
+                if (gamebase.oponent) {
                     console.log("Есть противник");
-                    //gameRef = gameRef1;
                     setmadeoponent(gamebase.oponent);
                     setupGameListener(user);
                     return;
@@ -117,27 +117,22 @@ onAuthStateChanged(auth, async (user) => {
                     //Есть письмо
                     if (alllettersSnapshot.exists()) {
                         console.log("Есть письмо");
-                        // let sendfil =false;
+                        let sendfil =false;
                         alllettersSnapshot.forEach((letterSnapshot) => {
                         const letterData = letterSnapshot.val();
                             if (letterData.from == user.uid) {
                                 console.log("Скип");
-                                // sendfil = true;
+                                return;
                                 window.location.reload();
                             }
                         });
-                        // if(sendfil){
-                        //     return;
-                        // }
-                        handlegohome("Выход: нет письма");
-                    }else{
-                        handlegohome("Приглашение было отклонено другим игроком: нет письма");
                     }
+                    handlegohome("Приглашение было отклонено другим игроком: нет письма");
                 }
             } else {
                 console.log("Подключённый");
-                // Если комнаты нет
-                setTimeout(async () => {
+
+                // если мы оппонент
                     const allRoomsRef = ref(db, 'room');
                     const allRoomsSnapshot = await get(allRoomsRef);
                     if (allRoomsSnapshot.exists()) {
@@ -154,7 +149,6 @@ onAuthStateChanged(auth, async (user) => {
                     }
                     // setmadeoponent(gamebase);
                     // setupGameListener(user);
-                }, 2000); // Даем 2 секунды на обработку приглашений
             }
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
