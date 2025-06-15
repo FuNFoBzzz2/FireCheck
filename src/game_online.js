@@ -81,11 +81,11 @@ function setupRoomListener(user) {
         // Обновляем состояние игры при изменениях
         if (roomData.oponent==user.uid) {
             setmadeoponent(roomData);
-            setupGameListener(user); // Обновляем состояние игры
+            setupGameListener(user, roomData); // Обновляем состояние игры
         }else if (roomData.oponent) {
                     console.log("Есть противник");
                     setmadeoponent(roomData.oponent);
-                    setupGameListener(user);
+                    setupGameListener(user, roomData);
                 // } else {
                 //     console.log("Нет противника");
                 //     //нет противника
@@ -258,9 +258,7 @@ async function writemodul(userRef){
 }
 //Ш А Ш К И
  
-function setupGameListener(user) {
-    onValue(gameRef, (snapshot) => {
-        const gameData = snapshot.val();
+function setupGameListener(user, gameData) {
         if (!gameData) return;
         // Определяем цвет текущего игрока
         if(gameData.oponent==user.uid){
@@ -284,7 +282,6 @@ function setupGameListener(user) {
                 whitepiece: whitepiece
             });
         }
-    });
 }
 // Партия 
 
