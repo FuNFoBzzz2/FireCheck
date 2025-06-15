@@ -45,13 +45,12 @@ async function handlegohome(message = null) {
     if (user) {
         try {
             const gamesnap = await get(gameRef);
-            gamesnap.exists()
-            const gamebase = gamesnap.val();
-            if(gamebase && gamebase.leave===1){
-                console.log("Пользователь не найден");
+            const gameData = gamesnap.val();
+            if(gameData && gameData.leave===1){
+                console.log("Победа из-за выхода");
                 await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
-                remove(gameRef);
-                const leaveparam = false;
+                await remove(gameRef);
+                leaveparam = false;
             }
             if(leaveparam){
                 const invitationsRef = ref(db, 'letter');
@@ -65,7 +64,7 @@ async function handlegohome(message = null) {
                     });
                     await Promise.all(deletePromises);
                 }
-                if((gamebase==user.uid && gamebase.opponent) || (gamebase.opponent==user.uid)){
+                if((gameData==user.uid && gameData.opponent) || (gameData.opponent==user.uid)){
                     if(confirm('Вы уверены, что хотите сдаться?')){
                         const updates = {loses: increment(1)};
                         await update(ref(db, 'users/' + user.uid), updates);
