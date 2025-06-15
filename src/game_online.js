@@ -31,6 +31,7 @@ let turn;
 let turnmatch = "white";
 let  blackpiece = [];
 let  whitepiece = [];
+let roomListener = null;
 
 document.getElementById('leave').addEventListener('click', (e) => {
     e.preventDefault();
@@ -65,7 +66,59 @@ async function handlegohome(message = null) {
         console.log("Пользователь не найден");
     }
 }
-
+function setupRoomListener(user) {
+    if (!gameRef) return;
+    // Отписываемся от предыдущего слушателя, если он есть
+    if (roomListener) {
+        roomListener();
+    }
+    roomListener = onValue(gameRef, (snapshot) => {
+        const roomData = snapshot.val();
+        if (!roomData) {
+            handlegohome("Комната была удалена");
+            return;
+        }
+        // Обновляем состояние игры при изменениях
+        if (roomData.oponent==user.uid) {
+            setmadeoponent(roomData);
+            setupGameListener(user); // Обновляем состояние игры
+        }else if (roomData.oponent) {
+                    console.log("Есть противник");
+                    setmadeoponent(roomData.oponent);
+                    setupGameListener(user);
+                // } else {
+                //     console.log("Нет противника");
+                //     //нет противника
+                //     const opGroup = document.getElementById('oponent_class');
+                //     opGroup.style.display = 'none';
+                //     const allletterRef = ref(db, 'letter');
+                //     const alllettersSnapshot = await get(allletterRef);
+                //     //Есть письмо
+                //     if (alllettersSnapshot.exists()) {
+                //         console.log("Есть письмо");
+                //         let sendfil =false;
+                //         alllettersSnapshot.forEach((letterSnapshot) => {
+                //         const letterData = letterSnapshot.val();
+                //             if (letterData.from == user.uid) {
+                //                 console.log("Скип");
+                //                 sendfil=true;
+                //             }
+                //         });
+                //         if(sendfil){
+                //             return;
+                //             //window.location.reload();
+                //         }
+                //     }
+                //     handlegohome("Приглашение было отклонено другим игроком: нет письма");
+                // } 
+        }else {
+            console.log("Ожидаем подключения оппонента...");
+            document.getElementById('oponent_class').style.display = 'none';
+        }
+    }, {
+        onlyOnce: false // Подписываемся на все изменения
+    });
+}
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
@@ -89,8 +142,9 @@ onAuthStateChanged(auth, async (user) => {
                     oponent: user.uid
                 });
                 await remove(invitationsRef);
-                setmadeoponent(myInvitations.from);
-                setupGameListener(user);
+                setupRoomListener(user);
+                // setmadeoponent(myInvitations.from);
+                // setupGameListener(user);
                 return;
             }
             // проверка своей комната 
@@ -100,38 +154,38 @@ onAuthStateChanged(auth, async (user) => {
                 console.log("Комната сущ");
                 const gamebase = gameSnapshot.val();
                 gameRef = gameRef1;
-
+                setupRoomListener(user)
                 //есть противника
-                if (gamebase.oponent) {
-                    console.log("Есть противник");
-                    setmadeoponent(gamebase.oponent);
-                    setupGameListener(user);
-                    return;
-                } else {
-                    console.log("Нет противника");
-                    //нет противника
-                    const opGroup = document.getElementById('oponent_class');
-                    opGroup.style.display = 'none';
-                    const allletterRef = ref(db, 'letter');
-                    const alllettersSnapshot = await get(allletterRef);
-                    //Есть письмо
-                    if (alllettersSnapshot.exists()) {
-                        console.log("Есть письмо");
-                        let sendfil =false;
-                        alllettersSnapshot.forEach((letterSnapshot) => {
-                        const letterData = letterSnapshot.val();
-                            if (letterData.from == user.uid) {
-                                console.log("Скип");
-                                sendfil=true;
-                            }
-                        });
-                        if(sendfil){
-                            return;
-                            //window.location.reload();
-                        }
-                    }
-                    handlegohome("Приглашение было отклонено другим игроком: нет письма");
-                }
+                // if (gamebase.oponent) {
+                //     console.log("Есть противник");
+                //     setmadeoponent(gamebase.oponent);
+                //     setupGameListener(user);
+                //     return;
+                // } else {
+                //     console.log("Нет противника");
+                //     //нет противника
+                //     const opGroup = document.getElementById('oponent_class');
+                //     opGroup.style.display = 'none';
+                //     const allletterRef = ref(db, 'letter');
+                //     const alllettersSnapshot = await get(allletterRef);
+                //     //Есть письмо
+                //     if (alllettersSnapshot.exists()) {
+                //         console.log("Есть письмо");
+                //         let sendfil =false;
+                //         alllettersSnapshot.forEach((letterSnapshot) => {
+                //         const letterData = letterSnapshot.val();
+                //             if (letterData.from == user.uid) {
+                //                 console.log("Скип");
+                //                 sendfil=true;
+                //             }
+                //         });
+                //         if(sendfil){
+                //             return;
+                //             //window.location.reload();
+                //         }
+                //     }
+                //     handlegohome("Приглашение было отклонено другим игроком: нет письма");
+                // }
             } else {
                 console.log("Подключённый");
 
@@ -144,8 +198,9 @@ onAuthStateChanged(auth, async (user) => {
                             if (roomData.oponent === user.uid) {
                                 // Нашли комнату где мы оппонент
                                 gameRef = ref(db, `room/${roomSnapshot.key}`);
-                                setmadeoponent(roomSnapshot.key);
-                                setupGameListener(user);
+                                setupRoomListener(user)
+                                // setmadeoponent(roomSnapshot.key);
+                                // setupGameListener(user);
                                 return;
                             }
                         });
@@ -209,9 +264,9 @@ function setupGameListener(user) {
         if (!gameData) return;
         // Определяем цвет текущего игрока
         if(gameData.oponent==user.uid){
-            turn = gameData.color === 'white' ? 'black' : 'white';
-        }else{
             turn = gameData.color === 'white' ? 'white' : 'black';
+        }else{
+            turn = gameData.color === 'white' ? 'black' : 'white';
         }
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
@@ -393,7 +448,7 @@ function PiecesPosition() {
 }
 function onCellClick(e) {
     //console.log("Click"); 
-    console.log("Ne proshlo", turnmatch ,"  - ==Match ", turn ,"  - ==turn "); 
+    console.log(turnmatch ,"  - ==цвет хода ", turn ,"  - ==цвет шашек"); 
     if(turnmatch==turn){
         //console.log("Yslovie", turnmatch ,"  - Match ", turn ,"  - turn "); 
     //removepoint()
