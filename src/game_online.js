@@ -32,6 +32,7 @@ let turnmatch = "white";
 let  blackpiece = [];
 let  whitepiece = [];
 let roomListener = null;
+let leaveListener = false;
 
 document.getElementById('leave').addEventListener('click', async (e) => {
     e.preventDefault();
@@ -59,6 +60,7 @@ async function handlegohome(message = null) {
                 if (snapshot.exists()) {
                     snapshot.forEach((childSnapshot) => {
                         if (childSnapshot.val().from === user.uid) {
+                            leaveListener = true;
                             remove(ref(db, `letter/${childSnapshot.key}`));
                             remove(gameRef);
                         }
@@ -92,6 +94,7 @@ function setupRoomListener(user) {
     if (roomListener) {
         roomListener();
     }
+    if(leaveListener){return;}
     roomListener = onValue(gameRef, (snapshot) => {
         const roomData = snapshot.val();
         if (!roomData) {
