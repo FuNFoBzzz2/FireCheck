@@ -122,10 +122,13 @@ onAuthStateChanged(auth, async (user) => {
                         const letterData = letterSnapshot.val();
                             if (letterData.from == user.uid) {
                                 console.log("Скип");
-                                return;
-                                window.location.reload();
+                                sendfil=true;
                             }
                         });
+                        if(sendfil){
+                            return;
+                            //window.location.reload();
+                        }
                     }
                     handlegohome("Приглашение было отклонено другим игроком: нет письма");
                 }
