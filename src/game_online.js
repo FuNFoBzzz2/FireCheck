@@ -41,14 +41,15 @@ document.getElementById('leave').addEventListener('click', (e) => {
 async function handlegohome(message = null) {
     const user = auth.currentUser;
     const leaveparam = true;
+    console.log("Выход");
     if (user) {
         try {
             const gamesnap = await get(gameRef);
             gamesnap.exists()
             const gamebase = gamesnap.val();
             if(gamebase.leave==1){
+                console.log("Пользователь не найден");
                 await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
-                push(remove(gameRef));
                 remove(gameRef);
                 const leaveparam = false;
             }
@@ -56,16 +57,15 @@ async function handlegohome(message = null) {
                 const invitationsRef = ref(db, 'letter');
                 const snapshot = await get(invitationsRef);
                 if (snapshot.exists()) {
-                    const deletePromises = [];
                     snapshot.forEach((childSnapshot) => {
                         if (childSnapshot.val().from === user.uid) {
-                            deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
+                            remove(ref(db, `letter/${childSnapshot.key}`));
                             remove(gameRef);
                         }
                     });
                     await Promise.all(deletePromises);
                 }
-                if((gameRef==user.uid && gamebase.opponent) || (gamebase.opponent==user.uid)){
+                if((gamebase==user.uid && gamebase.opponent) || (gamebase.opponent==user.uid)){
                     if(confirm('Вы уверены, что хотите сдаться?')){
                         const updates = {loses: increment(1)};
                         await update(ref(db, 'users/' + user.uid), updates);
@@ -98,7 +98,7 @@ function setupRoomListener(user) {
             handlegohome("Комната была удалена");
             return;
         }
-        if(roomData.leave){
+        if(roomData.leave==1){
             handlegohome("Противник сдался!");
         }
         // Обновляем состояние игры при изменениях
