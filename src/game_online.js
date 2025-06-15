@@ -33,9 +33,10 @@ let  blackpiece = [];
 let  whitepiece = [];
 let roomListener = null;
 
-document.getElementById('leave').addEventListener('click', (e) => {
+document.getElementById('leave').addEventListener('click', async (e) => {
     e.preventDefault();
-    handlegohome();
+    console.log("Выход по кнопке");
+    await handlegohome();
 });
 
 async function handlegohome(message = null) {
@@ -99,6 +100,7 @@ function setupRoomListener(user) {
         }
         if(roomData.leave==1){
             handlegohome("Противник сдался!");
+            return;
         }
         // Обновляем состояние игры при изменениях
         if (roomData.oponent==user.uid) {
