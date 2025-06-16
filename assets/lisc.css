@@ -8,6 +8,22 @@ body {
     width: 100%;
     margin: 0; /* Убираем отступы по умолчанию */
   }
+  .centr-form{
+    display: flex;
+    flex-direction: column; /* Устанавливаем направление по вертикали */
+    align-items: center;
+    text-decoration: none;
+    padding-top: 10px;
+}
+.invite-container {
+  max-height: 300px; /* Установите максимальную высоту контейнера */
+  overflow-y: auto; /* Включите вертикальную прокрутку */
+  border: 1px solid #ccc; /* Добавьте границу для визуального отделения */
+  padding: 10px; /* Добавьте отступы внутри контейнера */
+  background-color: #f9f9f9; /* Установите цвет фона для контейнера */
+  border-radius: 5px; /* Закруглите углы контейнера */
+  margin-bottom: 10px;
+}
 .container {
     background-color: #e1e1e1;
     text-decoration: none;
