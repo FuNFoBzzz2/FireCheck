@@ -242,7 +242,12 @@ async function writemodul(userRef){
     }
 }
 //Ш А Ш К И
- 
+let op;
+try{
+    op = user.uid === gameData.oponent ? true : false;
+} catch (error) {
+    console.error("Ошибка утверждения пользователя", error);
+}
 function setupGameListener(user, gameData) {
         if (!gameData) return;
         turn = (user.uid === gameData.oponent) ? (gameData.color === 'white' ? 'black' : 'white') : gameData.color; 
@@ -253,7 +258,7 @@ function setupGameListener(user, gameData) {
         removedesk();
         if (blackpiece.length > 0 || whitepiece.length > 0) {
             console.log("Сборка доски из массива");
-            if(user.uid === gameData.oponent){collectboard(true);}else{collectboard(false)}
+            collectboard(op);
         } else {
             console.log("Сборка доски с 0");
             initializeBoard();
@@ -370,7 +375,7 @@ function addPiece(cell, color, kg) {
     cell.appendChild(piece);
 }
 //Запись в позиций на доске
-function PiecesPosition() {
+function PiecesPosition(op) {
     //console.log("Запись данных");
     blackpiece = [];
     whitepiece = [];
@@ -381,7 +386,7 @@ function PiecesPosition() {
         const piece = cell.querySelector('.piece');
         if (piece) {
             const color = piece.dataset.color;
-            if(turn ==="white"){
+            if(!op){
                 if (color === 'black') {
                     if(piece.dataset.king=="false"){
                         blackpiece.push([row, col, false]);
@@ -396,7 +401,7 @@ function PiecesPosition() {
                         whitepiece.push([row, col, true]);
                     }
                 }
-            } else if(turn ==="black"){
+            } else{
                 if (color === 'black') {
                     if(piece.dataset.king=="false"){
                         blackpiece.push([(rows-1)-row, (cols-1)-col, false]);
@@ -764,7 +769,7 @@ function moveKing(piece, targetCell){
             }
         }
     }
-    PiecesPosition();
+    PiecesPosition(op);
     update(gameRef, {
         blackpiece: blackpiece, 
         whitepiece: whitepiece, 
@@ -820,7 +825,7 @@ function movePiece(piece, targetCell) {
         selectedPiece = null;
         turnmatch = turnmatch == "white" ? "black" : "white";
     }
-    PiecesPosition();
+    PiecesPosition(op);
     update(gameRef, {
         blackpiece: blackpiece, 
         whitepiece: whitepiece, 
