@@ -34,7 +34,6 @@ document.getElementById('submit-reg').addEventListener('click', async function(e
                             alert("Аккаунт с такой почтой уже существует!");
                             return;
                         }
-                        const auth = getAuth();
                         const userCredential = await createUserWithEmailAndPassword(auth, email, pas1);
                         const user = userCredential.user;
                         await set(ref(db, 'users/' + user.uid), {

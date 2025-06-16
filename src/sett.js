@@ -75,11 +75,7 @@ async function saveUser() {
                     const updates = {
                         email: newEmail
                     };
-                    // await sendEmailVerification(user);
-                    // alert('На новый адрес отправлено письмо для подтверждения.');
                     await update(ref(db, 'users/' + user.uid), updates);
-                    // updateEmail(user, newEmail).then(() => {
-                    // }).catch((error) => {});
                 }else{
                     alert("Введите корректный email! Пример: user@example.com"); 
                 }
