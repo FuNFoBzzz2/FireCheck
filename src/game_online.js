@@ -274,7 +274,7 @@ function removedesk(){
 //Сборка доски
 function collectboard(){
     //console.log("Your color is ", turn);
-    // if (turn === "white" ) {
+    if (turn === "white" ) {
         console.log("Сборка доски Белые");
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
@@ -299,37 +299,37 @@ function collectboard(){
                 board.appendChild(cell);
             } 
         }
-    // }
-    // else if(turn === "black"){
-    //     console.log("Сборка доски Чёрные");
-    //     for (let row = 0; row < rows; row++) {
-    //         for (let col = 0; col < cols; col++) {
-    //             const cell = document.createElement("div");
-    //             cell.classList.add("cell");
-    //             cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
-    //             cell.dataset.row = row;
-    //             cell.dataset.col = col;
-    //             const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
-    //             if(whitePieces){
-    //                 if(whitePieces[2]=="false"){
-    //                     addPiece(cell, "white", "false"); 
-    //                 }else{addPiece(cell, "white", "true"); }
-    //             }
-    //             const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
-    //             if(blackPieces){
-    //                 //console.log("blackpiece is read");
-    //                 if(blackPieces[2]== "false"){
-    //                     addPiece(cell, "black", "false"); 
-    //                     //console.log("read good");
-    //                 }else{addPiece(cell, "black", "true");  
-    //                     //console.log("King read");
-    //                 }
-    //             } 
-    //             cell.addEventListener("click", onCellClick);
-    //             board.appendChild(cell);
-    //         } 
-    //     }
-    // }
+    }
+    else if(turn === "black"){
+        console.log("Сборка доски Чёрные");
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
+                if(whitePieces){
+                    if(whitePieces[2]=="false"){
+                        addPiece(cell, "white", "false"); 
+                    }else{addPiece(cell, "white", "true"); }
+                }
+                const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
+                if(blackPieces){
+                    //console.log("blackpiece is read");
+                    if(blackPieces[2]== "false"){
+                        addPiece(cell, "black", "false"); 
+                        //console.log("read good");
+                    }else{addPiece(cell, "black", "true");  
+                        //console.log("King read");
+                    }
+                } 
+                cell.addEventListener("click", onCellClick);
+                board.appendChild(cell);
+            } 
+        }
+    }
 }
 //Создание доски
 function initializeBoard() { 
@@ -340,24 +340,25 @@ function initializeBoard() {
             cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
             cell.dataset.row = row;
             cell.dataset.col = col;
+            const kg=false;
             if (turn === "white") {
                 //console.log("Press w");
                 if (row < 3 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "black", "false"); 
-                    blackpiece.push([row, col]);
+                    addPiece(cell, "black", kg); 
+                    blackpiece.push([row, col, kg]);
                 } else if (row > 4 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "white", "false");
-                    whitepiece.push([row, col]);
+                    addPiece(cell, "white", kg);
+                    whitepiece.push([row, col, kg]);
                 }
             } 
             if (turn === "black") {
                 //console.log("Press b");
                 if (row < 3 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "white", "false");
-                    whitepiece.push([row, col]);
+                    addPiece(cell, "white", kg);
+                    whitepiece.push([row, col, kg]);
                 } else if (row > 4 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "black", "false");
-                    blackpiece.push([row, col]);
+                    addPiece(cell, "black", kg);
+                    blackpiece.push([row, col, kg]);
                 }
             }
         
