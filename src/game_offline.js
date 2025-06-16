@@ -64,15 +64,24 @@ function addPiece(cell, color, isKing) {
 // Обраб клика 
 function onCellClick(e) {
     const cell = e.target.closest(".cell");
-    if (!cell) return; 
-    const piece = cell.querySelector(".piece");  
-    // Если выбрана шашка текущего игрока
+    if (!cell) return;  
+    const piece = cell.querySelector(".piece");
     if (piece && piece.dataset.color === turn) {
+        const mustCapture = checkMustCapture();
+        if (mustCapture) {
+            const canCapture = piece.dataset.king === "true" 
+                ? canKingCapture(piece) 
+                : canPieceCapture(piece);
+            
+            if (!canCapture) {
+                alert("Вы должны выбрать шашку, которая может взять!");
+                return;
+            }
+        }
         selectedPiece = {cell, piece};
         showPossibleMoves(cell, piece);
         return;
-    } 
-  // Если пытаемся сделать ход
+    }
     if (selectedPiece && !piece) {
         const fromCell = selectedPiece.cell;
         const fromPiece = selectedPiece.piece;
@@ -91,15 +100,12 @@ function onCellClick(e) {
 function isValidMove(fromRow, fromCol, toRow, toCol, piece) {
     const isKing = piece.dataset.king === "true";
     const direction = piece.dataset.color === "white" ? -1 : 1; 
-    // Для обычной шашки
     if (!isKing) {
-        // Обычный ход
         if (Math.abs(toCol - fromCol) === 1 && 
             (toRow - fromRow) === direction && 
             !cellHasPiece(toRow, toCol)) {
             return true;
         }      
-        // Ход с взятием
         if (Math.abs(toCol - fromCol) === 2 && 
             Math.abs(toRow - fromRow) === 2) {
             const midRow = (fromRow + toRow) / 2;
@@ -110,7 +116,6 @@ function isValidMove(fromRow, fromCol, toRow, toCol, piece) {
             }
         }
     } 
-    // Для дамки
     else {
         if (Math.abs(toRow - fromRow) !== Math.abs(toCol - fromCol)) return false;     
         const rowStep = toRow > fromRow ? 1 : -1;
@@ -123,17 +128,16 @@ function isValidMove(fromRow, fromCol, toRow, toCol, piece) {
             const checkCol = fromCol + i * colStep;     
             if (cellHasPiece(checkRow, checkCol)) {
                 if (cellHasOpponentPiece(checkRow, checkCol, piece.dataset.color)) {
-                    if (hasOpponent) return false; // Больше одной шашки на пути
+                    if (hasOpponent) return false; 
                     hasOpponent = true;
                     opponentRow = checkRow;
                     opponentCol = checkCol;
                 } else {
-                    return false; // Своя шашка на пути
+                    return false; 
                 }
             }
         }   
         if (hasOpponent) {
-            // Проверяем, что после шашки противника есть свободное место
             const afterOpponentRow = opponentRow + rowStep;
             const afterOpponentCol = opponentCol + colStep;
             
@@ -153,34 +157,30 @@ function makeMove(fromCell, toCell, piece) {
     const fromCol = parseInt(fromCell.dataset.col);
     const toRow = parseInt(toCell.dataset.row);
     const toCol = parseInt(toCell.dataset.col); 
-    // Удаляем шашку с исходной клетки
-    fromCell.removeChild(piece);
-    // Если это взятие, удаляем съеденную шашку
+    fromCell.removeChild(piece);  
     if (Math.abs(toRow - fromRow) === 2) {
         const midRow = (fromRow + toRow) / 2;
         const midCol = (fromCol + toCol) / 2;
         const midCell = document.querySelector(`.cell[data-row="${midRow}"][data-col="${midCol}"]`);
-        midCell.querySelector(".piece").remove();     
-        // Обновляем массив шашек
-        if (turn === "white") {
-            blackPieces = blackPieces.filter(p => !(p.row === midRow && p.col === midCol));
-        } else {
-            whitePieces = whitePieces.filter(p => !(p.row === midRow && p.col === midCol));
+        const midPiece = midCell?.querySelector(".piece");     
+        if (midPiece) {
+            midCell.removeChild(midPiece);   
+            if (turn === "white") {
+                blackPieces = blackPieces.filter(p => !(p.row === midRow && p.col === midCol));
+            } else {
+                whitePieces = whitePieces.filter(p => !(p.row === midRow && p.col === midCol));
+            }
         }
-    }
-    // Проверка на превращение в дамку
+    }  
     let becameKing = false;
     if (!isKing && ((piece.dataset.color === "white" && toRow === 0) || 
                     (piece.dataset.color === "black" && toRow === 7))) {
         piece.dataset.king = "true";
         piece.classList.add("king");
         becameKing = true;
-    }
-    // Перемещаем шашку на новую клетку
+    } 
     toCell.appendChild(piece); 
-    // Обновляем массивы шашек
     updatePiecesArray(fromRow, fromCol, toRow, toCol, becameKing); 
-    // Проверяем, нужно ли продолжать взятие
     if (Math.abs(toRow - fromRow) === 2 && canCaptureMore(toRow, toCol, piece)) {
         selectedPiece = {cell: toCell, piece};
         showPossibleMoves(toCell, piece);
@@ -206,7 +206,23 @@ function updatePiecesArray(fromRow, fromCol, toRow, toCol, becameKing) {
         }
     }
 }
-
+// Проверка, есть ли обязательные взятия для текущего игрока
+function checkMustCapture() {
+    const pieces = turn === "white" ? whitePieces : blackPieces;
+    
+    for (const piece of pieces) {
+        const cell = document.querySelector(`.cell[data-row="${piece.row}"][data-col="${piece.col}"]`);
+        const pieceElement = cell.querySelector(".piece");
+        
+        if (pieceElement.dataset.king === "true") {
+            if (canKingCapture(pieceElement)) return true;
+        } else {
+            if (canPieceCapture(pieceElement)) return true;
+        }
+    }
+    
+    return false;
+}
 // Проверка, может ли шашка продолжить взятие
 function canCaptureMore(row, col, piece) {
     if (piece.dataset.king === "true") {
@@ -248,7 +264,67 @@ function canCaptureMore(row, col, piece) {
     } 
     return false;
 }
-
+// Проверка, может ли обычная шашка сделать взятие
+function canPieceCapture(piece) {
+    const cell = piece.parentElement;
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const color = piece.dataset.color;
+    const direction = color === "white" ? -1 : 1;
+    
+    for (const dc of [-2, 2]) {
+        const newRow = row + (direction * 2);
+        const newCol = col + dc;
+        
+        if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8 && 
+            !cellHasPiece(newRow, newCol)) {
+            const midRow = row + direction;
+            const midCol = col + (dc / 2);
+            
+            if (cellHasOpponentPiece(midRow, midCol, color)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+// Проверка, может ли дамка сделать взятие
+function canKingCapture(piece) {
+    const cell = piece.parentElement;
+    const row = parseInt(cell.dataset.row);
+    const col = parseInt(cell.dataset.col);
+    const color = piece.dataset.color;
+    
+    const directions = [
+        {dr: 1, dc: 1}, {dr: 1, dc: -1}, 
+        {dr: -1, dc: 1}, {dr: -1, dc: -1}
+    ];
+    
+    for (const dir of directions) {
+        let foundOpponent = false;
+        
+        for (let step = 1; step < 8; step++) {
+            const checkRow = row + dir.dr * step;
+            const checkCol = col + dir.dc * step;
+            
+            if (checkRow < 0 || checkRow >= 8 || checkCol < 0 || checkCol >= 8) break;
+            
+            if (cellHasPiece(checkRow, checkCol)) {
+                if (cellHasOpponentPiece(checkRow, checkCol, color)) {
+                    if (foundOpponent) break;
+                    foundOpponent = true;
+                } else {
+                    break;
+                }
+            } else if (foundOpponent) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
 // Проверка окончания игры
 function checkGameEnd() {
     if (whitePieces.length === 0 || !hasValidMoves("white")) {
@@ -313,25 +389,78 @@ function cellHasPiece(row, col) {
     const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
     return cell && cell.querySelector(".piece");
 }
-
+function showKingCaptures(row, col, color) {
+    const directions = [
+        {dr: 1, dc: 1}, {dr: 1, dc: -1}, 
+        {dr: -1, dc: 1}, {dr: -1, dc: -1}
+    ];
+    
+    for (const dir of directions) {
+        let foundOpponent = false;
+        
+        for (let step = 1; step < 8; step++) {
+            const newRow = row + dir.dr * step;
+            const newCol = col + dir.dc * step;
+            
+            if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) break;
+            
+            if (cellHasPiece(newRow, newCol)) {
+                if (cellHasOpponentPiece(newRow, newCol, color)) {
+                    if (foundOpponent) break;
+                    foundOpponent = true;
+                } else {
+                    break;
+                }
+            } else if (foundOpponent) {
+                highlightCell(newRow, newCol, true);
+            }
+        }
+    }
+}
 function cellHasOpponentPiece(row, col, color) {
     const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
     const piece = cell?.querySelector(".piece");
     return piece && piece.dataset.color !== color;
 }
-
+function showPieceCaptures(row, col, color) {
+    const direction = color === "white" ? -1 : 1;
+    
+    for (const dc of [-2, 2]) {
+        const newRow = row + (direction * 2);
+        const newCol = col + dc;
+        
+        if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8 && 
+            !cellHasPiece(newRow, newCol)) {
+            const midRow = row + direction;
+            const midCol = col + (dc / 2);
+            
+            if (cellHasOpponentPiece(midRow, midCol, color)) {
+                highlightCell(newRow, newCol, true);
+            }
+        }
+    }
+}
 function showPossibleMoves(cell, piece) {
-    clearHighlights(); 
+    clearHighlights();
+    
+    const mustCapture = checkMustCapture();
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
     const isKing = piece.dataset.king === "true";
-    if (isKing) {
-        showKingMoves(row, col, piece.dataset.color);
+    if (mustCapture) {
+        if (isKing) {
+            showKingCaptures(row, col, piece.dataset.color);
+        } else {
+            showPieceCaptures(row, col, piece.dataset.color);
+        }
     } else {
-        showRegularMoves(row, col, piece.dataset.color);
+        if (isKing) {
+            showKingMoves(row, col, piece.dataset.color);
+        } else {
+            showRegularMoves(row, col, piece.dataset.color);
+        }
     }
 }
-
 function showRegularMoves(row, col, color) {
     const direction = color === "white" ? -1 : 1;    
     // Проверка простых ходов
