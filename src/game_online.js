@@ -246,11 +246,12 @@ async function writemodul(userRef){
 function setupGameListener(user, gameData) {
         if (!gameData) return;
         // Определяем цвет текущего игрока
-        if(gameData.oponent==user.uid){
-            turn = gameData.color === 'white' ? 'white' : 'black';
-        }else{
-            turn = gameData.color === 'white' ? 'black' : 'white';
-        }
+        // if(gameData.oponent==user.uid){
+            // turn = gameData.color;
+        turn = (user.uid === gameData.oponent) ? (gameData.color === 'white' ? 'black' : 'white') : gameData.color; 
+        // }else{
+        //     turn = gameData.color === 'white' ? 'black' : 'white';
+        // }
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
         whitepiece = gameData.whitepiece || [];
