@@ -39,62 +39,70 @@ document.getElementById('button-save').addEventListener('click', (e) => {
 });
 async function saveUser() {
     const user = auth.currentUser;
+    if (!user) {
+        alert("Пользователь не авторизован!");
+        return;
+    }
     const newName = document.getElementById('TextName').value;
     const newEmail = document.getElementById('TextEmail').value;
     const Pas1 = document.getElementById('pass-first').value;
     const Pas2 = document.getElementById('pass-second').value;
     const mailVisible = document.getElementById('mailVisible').checked;
     try {
+        // Проверка имени
+        if (newName.length < 3) {
+            alert("Имя должно содержать не менее 3 символов!");
+            return;
+        }
         const emailChanged = newEmail.trim().toLowerCase() !== user.email?.trim().toLowerCase();
-        const passwordChanged = Pas1 === Pas2;
-        if(emailChanged || (passwordChanged && Pas1.length>=6 && Pas2.length>=6)){
-            console.log(emailChanged ," Почты: ", newEmail, " - ", user.email," Пароли: ", Pas1," ", Pas2," - ", passwordChanged);
+        const passwordChanged = Pas1 === Pas2 && Pas1.length >= 6;
+        if (emailChanged || passwordChanged) {
             const password = prompt('Для подтверждения изменения аккаунта введите ваш пароль:');
-            if (!password) {
+            if (!password) return;
+            try {
+                const credential = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credential);
+            } catch (error) {
+                alert("Неверный пароль! Изменения не сохранены.");
                 return;
             }
-            const credential = EmailAuthProvider.credential(user.email, password);
-            await reauthenticateWithCredential(user, credential);
-            if(passwordChanged){
-                if(Pas1.length>=6 && Pas2.length>=6 && passwordChanged){
+            if (passwordChanged) {
+                try {
                     await updatePassword(user, Pas1);
                     document.getElementById('pass-first').value = "";
                     document.getElementById('pass-second').value = "";
-                }else{
-                    alert("пароли заполнена неверно");
+                    alert("Пароль успешно изменен!");
+                } catch (error) {
+                    alert("Ошибка при изменении пароля: " + error.message);
+                    return;
                 }
             }
-            if(emailChanged){
-                if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
+            if (emailChanged) {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                    alert("Введите корректный email! Пример: user@example.com");
+                    return;
+                }
+                try {
                     const signInMethods = await fetchSignInMethodsForEmail(auth, newEmail);
                     if (signInMethods.length > 0) {
                         alert("Этот email уже используется другим аккаунтом!");
                         return;
                     }
                     await updateEmail(user, newEmail);
-                    const updates = {
-                        email: newEmail
-                    };
-                    await update(ref(db, 'users/' + user.uid), updates);
-                }else{
-                    alert("Введите корректный email! Пример: user@example.com"); 
+                    await update(ref(db, 'users/' + user.uid), { email: newEmail });
+                    alert("Email успешно изменен!");
+                } catch (error) {
+                    alert("Ошибка при изменении email: " + error.message);
+                    return;
                 }
             }
         }
-        if(!passwordChanged){
-            alert("пароли заполнена неверно"); 
-        }
-        if(newName.length>=3){
-            // Обновляем данные 
-            const updates = {
-                name: newName,
-                visible_mail: mailVisible
-            };
-            await update(ref(db, 'users/' + user.uid), updates);
-            alert('Данные успешно сохранены!');
-        }else{
-            alert("Имя должо содержать не менее 3 символов!");
-        }
+        const updates = {
+            name: newName,
+            visible_mail: mailVisible
+        };
+        await update(ref(db, 'users/' + user.uid), updates);
+        alert('Данные успешно сохранены!');
     } catch (error) {
         console.error('Ошибка сохранения:', error);
         alert(`Ошибка: ${error.message}`);
