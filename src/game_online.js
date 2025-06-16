@@ -129,32 +129,7 @@ function setupRoomListener(user) {
                     console.log("Есть противник");
                     setmadeoponent(roomData.oponent);
                     setupGameListener(user, roomData);
-                // } else {
-                //     console.log("Нет противника");
-                //     //нет противника
-                //     const opGroup = document.getElementById('oponent_class');
-                //     opGroup.style.display = 'none';
-                //     const allletterRef = ref(db, 'letter');
-                //     const alllettersSnapshot = await get(allletterRef);
-                //     //Есть письмо
-                //     if (alllettersSnapshot.exists()) {
-                //         console.log("Есть письмо");
-                //         let sendfil =false;
-                //         alllettersSnapshot.forEach((letterSnapshot) => {
-                //         const letterData = letterSnapshot.val();
-                //             if (letterData.from == user.uid) {
-                //                 console.log("Скип");
-                //                 sendfil=true;
-                //             }
-                //         });
-                //         if(sendfil){
-                //             return;
-                //             //window.location.reload();
-                //         }
-                //     }
-                //     handlegohome("Приглашение было отклонено другим игроком: нет письма");
-                // } 
-        }else {
+                }else {
             console.log("Ожидаем подключения оппонента...");
             document.getElementById('oponent_class').style.display = 'none';
         }
@@ -186,8 +161,6 @@ onAuthStateChanged(auth, async (user) => {
                 });
                 await remove(invitationsRef);
                 setupRoomListener(user);
-                // setmadeoponent(myInvitations.from);
-                // setupGameListener(user);
                 return;
             }
             // проверка своей комната 
@@ -198,38 +171,7 @@ onAuthStateChanged(auth, async (user) => {
                 const gamebase = gameSnapshot.val();
                 gameRef = gameRef1;
                 setupRoomListener(user)
-                //есть противника
-                // if (gamebase.oponent) {
-                //     console.log("Есть противник");
-                //     setmadeoponent(gamebase.oponent);
-                //     setupGameListener(user);
-                //     return;
-                // } else {
-                //     console.log("Нет противника");
-                //     //нет противника
-                //     const opGroup = document.getElementById('oponent_class');
-                //     opGroup.style.display = 'none';
-                //     const allletterRef = ref(db, 'letter');
-                //     const alllettersSnapshot = await get(allletterRef);
-                //     //Есть письмо
-                //     if (alllettersSnapshot.exists()) {
-                //         console.log("Есть письмо");
-                //         let sendfil =false;
-                //         alllettersSnapshot.forEach((letterSnapshot) => {
-                //         const letterData = letterSnapshot.val();
-                //             if (letterData.from == user.uid) {
-                //                 console.log("Скип");
-                //                 sendfil=true;
-                //             }
-                //         });
-                //         if(sendfil){
-                //             return;
-                //             //window.location.reload();
-                //         }
-                //     }
-                //     handlegohome("Приглашение было отклонено другим игроком: нет письма");
-                // }
-            } else {
+                } else {
                 console.log("Подключённый");
 
                 // если мы оппонент
@@ -242,14 +184,10 @@ onAuthStateChanged(auth, async (user) => {
                                 // Нашли комнату где мы оппонент
                                 gameRef = ref(db, `room/${roomSnapshot.key}`);
                                 setupRoomListener(user)
-                                // setmadeoponent(roomSnapshot.key);
-                                // setupGameListener(user);
                                 return;
                             }
                         });
                     }
-                    // setmadeoponent(gamebase);
-                    // setupGameListener(user);
             }
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
@@ -336,7 +274,7 @@ function removedesk(){
 //Сборка доски
 function collectboard(){
     //console.log("Your color is ", turn);
-    if (turn === "white" ) {
+    // if (turn === "white" ) {
         console.log("Сборка доски Белые");
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
@@ -349,49 +287,49 @@ function collectboard(){
                 if(whitepi){
                     if(whitepi[2]=="false"){
                         addPiece(cell, "white", "false"); 
-                    }else{addPiece(cell, "white", "false"); }
+                    }else{addPiece(cell, "white", "true"); }
                 }
                 const blackpi = blackpiece.find(([r, c, kg]) => r===row && c ===col)
                 if(blackpi){
                     if(blackpi[2]== "false"){
                         addPiece(cell, "black", "false"); 
-                    }else{addPiece(cell, "black", "false");  }
+                    }else{addPiece(cell, "black", "true");  }
                 } 
                 cell.addEventListener("click", onCellClick);
                 board.appendChild(cell);
             } 
         }
-    }
-    else if(turn === "black"){
-        console.log("Сборка доски Чёрные");
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const cell = document.createElement("div");
-                cell.classList.add("cell");
-                cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
-                cell.dataset.row = row;
-                cell.dataset.col = col;
-                const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
-                if(whitePieces){
-                    if(whitePieces[2]=="false"){
-                        addPiece(cell, "white", "false"); 
-                    }else{addPiece(cell, "white", "false"); }
-                }
-                const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
-                if(blackPieces){
-                    //console.log("blackpiece is read");
-                    if(blackPieces[2]== "false"){
-                        addPiece(cell, "black", "false"); 
-                        //console.log("read good");
-                    }else{addPiece(cell, "black", "false");  
-                        //console.log("King read");
-                    }
-                } 
-                cell.addEventListener("click", onCellClick);
-                board.appendChild(cell);
-            } 
-        }
-    }
+    // }
+    // else if(turn === "black"){
+    //     console.log("Сборка доски Чёрные");
+    //     for (let row = 0; row < rows; row++) {
+    //         for (let col = 0; col < cols; col++) {
+    //             const cell = document.createElement("div");
+    //             cell.classList.add("cell");
+    //             cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
+    //             cell.dataset.row = row;
+    //             cell.dataset.col = col;
+    //             const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
+    //             if(whitePieces){
+    //                 if(whitePieces[2]=="false"){
+    //                     addPiece(cell, "white", "false"); 
+    //                 }else{addPiece(cell, "white", "true"); }
+    //             }
+    //             const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
+    //             if(blackPieces){
+    //                 //console.log("blackpiece is read");
+    //                 if(blackPieces[2]== "false"){
+    //                     addPiece(cell, "black", "false"); 
+    //                     //console.log("read good");
+    //                 }else{addPiece(cell, "black", "true");  
+    //                     //console.log("King read");
+    //                 }
+    //             } 
+    //             cell.addEventListener("click", onCellClick);
+    //             board.appendChild(cell);
+    //         } 
+    //     }
+    // }
 }
 //Создание доски
 function initializeBoard() { 
@@ -659,6 +597,7 @@ function removepoint(){
 }
 //возможные ходы для шашки (точки)
 function possiblemoves(piece){
+    //дод
     removepoint();
     //console.log("Point");
     const Row = parseInt(piece.parentElement.dataset.row);
