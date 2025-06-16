@@ -279,7 +279,7 @@ function removedesk(){
 //Сборка доски
 function collectboard(){
     //console.log("Your color is ", turn);
-    if (turn === "black" ) {
+    if (turn === "white" ) {
         console.log("Сборка доски Белые");
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
@@ -301,7 +301,7 @@ function collectboard(){
             } 
         }
     }
-    else if(turn === "white"){
+    else if(turn === "black"){
         console.log("Сборка доски Чёрные");
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
