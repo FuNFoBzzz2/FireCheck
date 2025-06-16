@@ -886,26 +886,29 @@ function moveKing(piece, targetCell) {
     }
     checkGameState();
 }
-//Ход шашки
+//Ход шашки New
 function movePiece(piece, targetCell) {
     const startRow = parseInt(piece.parentElement.dataset.row);
     const startCol = parseInt(piece.parentElement.dataset.col);
     const endRow = parseInt(targetCell.dataset.row);
     const endCol = parseInt(targetCell.dataset.col);
     removepoint();
-    if (possiblecapture(piece)){
+    
+    if (possiblecapture(piece)) {
         if (Math.abs(endRow - startRow) == 2 && Math.abs(endCol - startCol) == 2) {
             const middleCell = document.querySelector(`.cell[data-row="${(startRow + endRow) / 2}"][data-col="${(startCol + endCol) / 2}"]`);
             const middlePiece = middleCell.querySelector(".piece");
             middleCell.removeChild(middlePiece);
             targetCell.appendChild(piece);
+            
+            // Проверка на превращение в дамку с учетом цвета игрока
             if ((piece.dataset.color === "white" && endRow === 0) || 
-                (piece.dataset.color === "black" && endRow === 7)) {
+                (piece.dataset.color === "black" && endRow === rows-1)) {
                 piece.dataset.king = "true"; 
                 piece.classList.add("king");
                 console.log("Шашка превратилась в дамку");
-                
             }
+            
             if (piece.dataset.king === "true") {
                 if (!possibleKing(piece)) {
                     selectedPiece = null;
@@ -921,17 +924,21 @@ function movePiece(piece, targetCell) {
                 }
             }
         }
-    }else {
+    } else {
         targetCell.appendChild(piece);
+        
+        // Проверка на превращение в дамку с учетом цвета игрока
         if ((piece.dataset.color === "white" && endRow === 0) || 
-            (piece.dataset.color === "black" && endRow === 7)) {
+            (piece.dataset.color === "black" && endRow === rows-1)) {
             piece.dataset.king = "true";
             piece.classList.add("king");
             console.log("Шашка превратилась в дамку");
         }
+        
         selectedPiece = null;
         turnmatch = turnmatch === "white" ? "black" : "white";
     }
+    
     PiecesPosition(op);
     update(gameRef, {
         blackpiece: blackpiece, 
