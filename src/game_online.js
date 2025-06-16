@@ -389,30 +389,30 @@ function PiecesPosition() {
             if(turn ==="white"){
                 if (color === 'black') {
                     if(piece.dataset.king=="false"){
-                        blackpiece.push([row, col, "false"]);
+                        blackpiece.push([row, col, false]);
                     }else{
                         //console.log("");
-                        blackpiece.push([row, col, "true"]);
+                        blackpiece.push([row, col, true]);
                     }
                 } else if (color === 'white') {
                     if(piece.dataset.king=="false"){
-                        whitepiece.push([row, col, "false"]);
+                        whitepiece.push([row, col, false]);
                     }else{
-                        whitepiece.push([row, col, "true"]);
+                        whitepiece.push([row, col, true]);
                     }
                 }
             } else if(turn ==="black"){
                 if (color === 'black') {
                     if(piece.dataset.king=="false"){
-                        blackpiece.push([(rows-1)-row, (cols-1)-col, "false"]);
+                        blackpiece.push([(rows-1)-row, (cols-1)-col, false]);
                     }else{
-                        blackpiece.push([(rows-1)-row, (cols-1)-col, "true"]);
+                        blackpiece.push([(rows-1)-row, (cols-1)-col, true]);
                     }
                 } else if (color === 'white') {
                     if(piece.dataset.king=="false"){
-                        whitepiece.push([(rows-1)-row, (cols-1)-col, "false"]);
+                        whitepiece.push([(rows-1)-row, (cols-1)-col, false]);
                     }else{
-                        whitepiece.push([(rows-1)-row, (cols-1)-col, "true"]);
+                        whitepiece.push([(rows-1)-row, (cols-1)-col, true]);
                     }
                 }
             }
