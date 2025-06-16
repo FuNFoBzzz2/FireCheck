@@ -123,7 +123,7 @@ function setupRoomListener(user) {
         }
         // Обновляем состояние игры при изменениях
         if (roomData.oponent==user.uid) {
-            setmadeoponent(roomData);
+            setmadeoponent(roomData.oponent);
             setupGameListener(user, roomData); // Обновляем состояние игры
         }else if (roomData.oponent) {
                     console.log("Есть противник");
