@@ -73,7 +73,7 @@ async function handlegohome(message = null) {
                     });
                     //await Promise.all(deletePromises);
                 }
-                if(gameData && ((gameData.key==user.uid && gameData.opponent) || (gameData.opponent==user.uid))){
+                if((gameRef.key==user.uid && gameData.opponent) || (gameData.opponent==user.uid)){
                     if(confirm('Вы уверены, что хотите сдаться?')){
                         await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
                         await update(gameRef, {leave: 1});
