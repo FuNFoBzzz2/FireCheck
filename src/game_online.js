@@ -101,6 +101,7 @@ async function handlegohome(message = null) {
         console.log("Пользователь не найден");
     }
 }
+let datop;
 //Слушатель из БД
 function setupRoomListener(user) {
     
@@ -114,6 +115,7 @@ function setupRoomListener(user) {
             return;
         }
         const roomData = snapshot.val();
+        datop = roomData;
         if (!roomData) {
             handlegohome("Комната была удалена");
             return;
@@ -243,15 +245,11 @@ async function writemodul(userRef){
 }
 //Ш А Ш К И
 let op;
-try{
-    op = user.uid === gameData.oponent ? true : false;
-} catch (error) {
-    console.error("Ошибка утверждения пользователя", error);
-}
 function setupGameListener(user, gameData) {
         if (!gameData) return;
         turn = (user.uid === gameData.oponent) ? (gameData.color === 'white' ? 'black' : 'white') : gameData.color; 
         console.log("Цвет пользователя: " , turn);
+        op = user.uid === gameData.oponent ? true : false;
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
         whitepiece = gameData.whitepiece || [];
