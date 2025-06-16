@@ -40,7 +40,7 @@ document.getElementById('leave').addEventListener('click', async (e) => {
     console.log("Выход по кнопке");
     await handlegohome();
 });
-
+//Домой 
 async function handlegohome(message = null) {
     const user = auth.currentUser;
     const leaveparam = true;
@@ -101,6 +101,7 @@ async function handlegohome(message = null) {
         console.log("Пользователь не найден");
     }
 }
+//Слушатель из БД
 function setupRoomListener(user) {
     
     if (!gameRef) return;
@@ -137,6 +138,7 @@ function setupRoomListener(user) {
         onlyOnce: false // Подписываемся на все изменения
     });
 }
+//Авторизационные параметры
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = ref(db, 'users/' + user.uid);
@@ -196,6 +198,7 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "./sign.html";
     }
 });
+//Модуль оппонента
 async function setmadeoponent(opponentUid) {
     try {
         const opponentRef = ref(db, 'users/' + opponentUid);
@@ -220,6 +223,7 @@ async function setmadeoponent(opponentUid) {
         console.error("Ошибка при загрузке данных оппонента:", error);
     }
 }
+//Модуль пользователя
 async function writemodul(userRef){
     try{
     const snapshot = await get(userRef);
@@ -285,15 +289,11 @@ function collectboard(){
                 cell.dataset.col = col;
                 const whitepi = whitepiece.find(([r, c, kg]) => r===row && c ===col)
                 if(whitepi){
-                    if(whitepi[2]=="false"){
-                        addPiece(cell, "white", "false"); 
-                    }else{addPiece(cell, "white", "true"); }
+                    addPiece(cell, "white", whitepi[2]); 
                 }
                 const blackpi = blackpiece.find(([r, c, kg]) => r===row && c ===col)
                 if(blackpi){
-                    if(blackpi[2]== "false"){
-                        addPiece(cell, "black", "false"); 
-                    }else{addPiece(cell, "black", "true");  }
+                    addPiece(cell, "black", blackpi[2]); 
                 } 
                 cell.addEventListener("click", onCellClick);
                 board.appendChild(cell);
@@ -311,19 +311,12 @@ function collectboard(){
                 cell.dataset.col = col;
                 const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
                 if(whitePieces){
-                    if(whitePieces[2]=="false"){
-                        addPiece(cell, "white", "false"); 
-                    }else{addPiece(cell, "white", "true"); }
+                    addPiece(cell, "white", whitePieces[2]); 
                 }
                 const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
                 if(blackPieces){
                     //console.log("blackpiece is read");
-                    if(blackPieces[2]== "false"){
-                        addPiece(cell, "black", "false"); 
-                        //console.log("read good");
-                    }else{addPiece(cell, "black", "true");  
-                        //console.log("King read");
-                    }
+                    addPiece(cell, "black", blackPieces[2]);  
                 } 
                 cell.addEventListener("click", onCellClick);
                 board.appendChild(cell);
@@ -372,7 +365,7 @@ function addPiece(cell, color, kg) {
     const piece = document.createElement("div");
     piece.classList.add("piece", color);
     piece.dataset.color = color;
-    if(kg==="false"){
+    if(!kg){
         piece.dataset.king = "false";
     }else{
         piece.dataset.king = "true";
