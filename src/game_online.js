@@ -245,27 +245,34 @@ async function writemodul(userRef){
 }
 //Ш А Ш К И
 let op;
+//Слушатель New
 function setupGameListener(user, gameData) {
-        if (!gameData) return;
-        turn = (user.uid === gameData.oponent) ? (gameData.color === 'white' ? 'black' : 'white') : gameData.color; 
-        console.log("Цвет пользователя: " , turn);
-        op = user.uid === gameData.oponent ? true : false;
-        turnmatch = gameData.turn;
-        blackpiece = gameData.blackpiece || [];
-        whitepiece = gameData.whitepiece || [];
-        removedesk();
-        if (blackpiece.length > 0 || whitepiece.length > 0) {
-            console.log("Сборка доски из массива");
-            collectboard(op);
-        } else {
-            console.log("Сборка доски с 0");
-            initializeBoard();
-            // Сохраняем начальное состояние в базу
-            update(gameRef, {
-                blackpiece: blackpiece,
-                whitepiece: whitepiece
-            });
-        }
+    if (!gameData) return;
+    
+    // Определяем цвет текущего игрока
+    turn = (user.uid === gameData.oponent) ? (gameData.color === 'white' ? 'black' : 'white') : gameData.color; 
+    console.log("Цвет пользователя: ", turn);
+    
+    op = user.uid === gameData.oponent;
+    turnmatch = gameData.turn;
+    blackpiece = gameData.blackpiece || [];
+    whitepiece = gameData.whitepiece || [];
+    
+    removedesk();
+    
+    if (blackpiece.length > 0 || whitepiece.length > 0) {
+        console.log("Сборка доски из массива");
+        collectboard(op);
+    } else {
+        console.log("Сборка доски с 0");
+        initializeBoard();
+        // Сохраняем начальное состояние в базу
+        update(gameRef, {
+            blackpiece: blackpiece,
+            whitepiece: whitepiece,
+            turn: turnmatch
+        });
+    }
 }
 // Партия 
 
@@ -274,9 +281,8 @@ function removedesk(){
     const existcell = document.querySelectorAll('.cell');
     existcell.forEach(cell => {cell.parentElement.removeChild(cell);});
 }
-//Сборка доски
-function collectboard(op){
-    //console.log("Your color is ", turn);
+//Сборка доски New
+function collectboard(op) {
     if (!op) {
         console.log("Сборка доски пользователя цвета: ", turn);
         for (let row = 0; row < rows; row++) {
@@ -286,21 +292,23 @@ function collectboard(op){
                 cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
                 cell.dataset.row = row;
                 cell.dataset.col = col;
-                const whitepi = whitepiece.find(([r, c, kg]) => r===row && c ===col)
-                if(whitepi){
+                
+                const whitepi = whitepiece.find(([r, c, kg]) => r === row && c === col);
+                if (whitepi) {
                     addPiece(cell, "white", whitepi[2]); 
                 }
-                const blackpi = blackpiece.find(([r, c, kg]) => r===row && c ===col)
-                if(blackpi){
+                
+                const blackpi = blackpiece.find(([r, c, kg]) => r === row && c === col);
+                if (blackpi) {
                     addPiece(cell, "black", blackpi[2]); 
                 } 
+                
                 cell.addEventListener("click", onCellClick);
                 board.appendChild(cell);
             } 
         }
-    }
-    else{
-        console.log("Сборка доски опонента с цветом: ", turn);
+    } else {
+        console.log("Сборка доски оппонента с цветом: ", turn);
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
                 const cell = document.createElement("div");
@@ -308,15 +316,18 @@ function collectboard(op){
                 cell.classList.add((row + col) % 2 == 0 ? "white" : "black");
                 cell.dataset.row = row;
                 cell.dataset.col = col;
-                const whitePieces = whitepiece.find(([r, c, kg]) => ((rows-1)-row)===r && c ===((cols-1)-col))
-                if(whitePieces){
-                    addPiece(cell, "white", whitePieces[2]); 
+                
+                // Корректно отображаем шашки для оппонента
+                const whitePieces = whitepiece.find(([r, c, kg]) => r === (rows-1-row) && c === (cols-1-col));
+                if (whitePieces) {
+                    addPiece(cell, "black", whitePieces[2]); // Инвертируем цвет для оппонента
                 }
-                const blackPieces = blackpiece.find(([r, c, kg]) => r===((rows-1)-row) && c ===((cols-1)-col))
-                if(blackPieces){
-                    //console.log("blackpiece is read");
-                    addPiece(cell, "black", blackPieces[2]);  
+                
+                const blackPieces = blackpiece.find(([r, c, kg]) => r === (rows-1-row) && c === (cols-1-col));
+                if (blackPieces) {
+                    addPiece(cell, "white", blackPieces[2]); // Инвертируем цвет для оппонента
                 } 
+                
                 cell.addEventListener("click", onCellClick);
                 board.appendChild(cell);
             } 
@@ -810,31 +821,42 @@ function canMoveKing(piece, startRow, startCol, endRow, endCol) {
     }
     return true;
 }
+///asfd//sf
 //Ход короля
 function moveKing(piece, targetCell) {
     const startRow = parseInt(piece.parentElement.dataset.row);
     const startCol = parseInt(piece.parentElement.dataset.col);
     const endRow = parseInt(targetCell.dataset.row);
     const endCol = parseInt(targetCell.dataset.col);
+    
     removepoint();
+    
+    // Проверяем, можно ли сделать такой ход
     if (!canMoveKing(piece, startRow, startCol, endRow, endCol)) {
-        console.log("Недопустимый ход дамки");
+        console.log("Недопустимый ход для дамки");
         return;
     }
+    
     const rowDir = endRow > startRow ? 1 : -1;
     const colDir = endCol > startCol ? 1 : -1;
     let capturedPiece = false;
+    
+    // Проверяем все клетки по пути
     for (let step = 1; step <= Math.abs(endRow - startRow); step++) {
         const currentRow = startRow + step * rowDir;
         const currentCol = startCol + step * colDir;
+        
+        // Пропускаем начальную и конечную клетки
         if (currentRow === startRow && currentCol === startCol) continue;
-        if (currentRow === endRow && currentCol === endCol) continue;  
+        if (currentRow === endRow && currentCol === endCol) continue;
+        
         const currentCell = document.querySelector(`.cell[data-row="${currentRow}"][data-col="${currentCol}"]`);
-       if (!currentCell) continue;
+        if (!currentCell) continue;
+        
         const pieceInCell = currentCell.querySelector(".piece");
         if (pieceInCell) {
             if (pieceInCell.dataset.color === turn) {
-                console.log("перепрыгивание своих шашек");
+                console.log("Нельзя перепрыгивать свои шашки");
                 return;
             } else {
                 currentCell.removeChild(pieceInCell);
@@ -842,21 +864,26 @@ function moveKing(piece, targetCell) {
             }
         }
     }
+    
+    // Перемещаем дамку
     targetCell.appendChild(piece);
+    
+    // Проверяем, нужно ли продолжать взятие
     let mustContinueCapture = capturedPiece ? possibleKing(piece) : false;
     if (!mustContinueCapture) {
         selectedPiece = null;
         turnmatch = turnmatch === "white" ? "black" : "white";
+        // Обновляем позиции и состояние игры
+        PiecesPosition(op);
+        update(gameRef, {
+            blackpiece: blackpiece, 
+            whitepiece: whitepiece, 
+            turn: turnmatch
+        });
     } else {
         selectedPiece = piece;
         possiblemovesKing(piece);
     }
-    PiecesPosition();
-    update(gameRef, {
-        blackpiece: blackpiece, 
-        whitepiece: whitepiece, 
-        turn: turnmatch
-    });
     checkGameState();
 }
 //Ход шашки

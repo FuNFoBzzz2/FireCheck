@@ -93,7 +93,7 @@ async function sendInvitation(event) {
                 blackpiece: [],
                 whitepiece: []
         });
-        alert('Приглашение отправлено!');
+        //alert('Приглашение отправлено!');
         window.location.href = "./party.html";
     } catch (error) {
         console.error("Ошибка при отправке приглашения:", error);
