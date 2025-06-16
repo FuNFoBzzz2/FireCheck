@@ -68,7 +68,7 @@ async function handlegohome(message = null) {
                     snapshot.forEach((childSnapshot) => {
                         if (childSnapshot.val().from === user.uid) {
                             deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
-                            //remove(gameRef);
+                            remove(gameRef);
                         }
                     });
                     //await Promise.all(deletePromises);
