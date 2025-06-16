@@ -317,15 +317,15 @@ function collectboard(op) {
                 cell.dataset.row = row;
                 cell.dataset.col = col;
                 
-                // Корректно отображаем шашки для оппонента
+                // Для оппонента инвертируем только координаты, но не цвета шашек
                 const whitePieces = whitepiece.find(([r, c, kg]) => r === (rows-1-row) && c === (cols-1-col));
                 if (whitePieces) {
-                    addPiece(cell, "black", whitePieces[2]); // Инвертируем цвет для оппонента
+                    addPiece(cell, "white", whitePieces[2]); // Оставляем белый цвет
                 }
                 
                 const blackPieces = blackpiece.find(([r, c, kg]) => r === (rows-1-row) && c === (cols-1-col));
                 if (blackPieces) {
-                    addPiece(cell, "white", blackPieces[2]); // Инвертируем цвет для оппонента
+                    addPiece(cell, "black", blackPieces[2]); // Оставляем черный цвет
                 } 
                 
                 cell.addEventListener("click", onCellClick);
@@ -822,7 +822,7 @@ function canMoveKing(piece, startRow, startCol, endRow, endCol) {
     return true;
 }
 ///asfd//sf
-//Ход короля
+//Ход короля New
 function moveKing(piece, targetCell) {
     const startRow = parseInt(piece.parentElement.dataset.row);
     const startCol = parseInt(piece.parentElement.dataset.col);
