@@ -11,7 +11,7 @@ const firebaseConfig = {
   appId: "1:35572184263:web:914b2908b9d398778d7ae2",
   measurementId: "G-WSLS7RSWKB"
 };
-
+window.onload = () => window.location.href = './sign.html';
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app); 
 
