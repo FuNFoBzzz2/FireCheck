@@ -195,7 +195,7 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Ошибка при обновлении статуса:", error);
         }
     } else {
-        window.location.href = "./sign.html";
+        window.location.href = "./index.html";
     }
 });
 //Модуль оппонента
@@ -335,24 +335,24 @@ function initializeBoard() {
             cell.dataset.row = row;
             cell.dataset.col = col;
             const kg=false;
-            if (turn === "white") {
-                //console.log("Press w");
-                if (row < 3 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "black", kg); 
-                    blackpiece.push([row, col, kg]);
-                } else if (row > 4 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "white", kg);
-                    whitepiece.push([row, col, kg]);
-                }
-            } 
-            if (turn === "black") {
-                //console.log("Press b");
-                if (row < 3 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "white", kg);
-                    whitepiece.push([row, col, kg]);
-                } else if (row > 4 && (row + col) % 2 !== 0) {
-                    addPiece(cell, "black", kg);
-                    blackpiece.push([row, col, kg]);
+            if ((row + col) % 2 !== 0) { // Только черные клетки
+                if (row < 3) { // Верхняя часть доски
+                    if (turn === "white") {
+                        addPiece(cell, "black", kg);
+                        blackpiece.push([row, col, kg]);
+                    } else {
+                        addPiece(cell, "white", kg);
+                        whitepiece.push([row, col, kg]);
+                    }
+                } 
+                else if (row > 4) { // Нижняя часть доски
+                    if (turn === "white") {
+                        addPiece(cell, "white", kg);
+                        whitepiece.push([row, col, kg]);
+                    } else {
+                        addPiece(cell, "black", kg);
+                        blackpiece.push([row, col, kg]);
+                    }
                 }
             }
         

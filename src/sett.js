@@ -137,7 +137,7 @@ async function deleteAc(){
         await deleteUser(user);
         await remove(userRef);
         alert('Ваш аккаунт был успешно удален.');
-        window.location.href = './sign.html';
+        window.location.href = './index.html';
     } catch (error) {
         console.error('Ошибка при удалении аккаунта:', error);
     }
@@ -159,7 +159,7 @@ onAuthStateChanged(auth, async (user) => {
         
     }else {
         // Пользователь не авторизован - перенаправляем на страницу входа
-        window.location.href = "./sign.html";
+        window.location.href = "./index.html";
     }
 });
 

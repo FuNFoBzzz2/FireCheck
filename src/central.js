@@ -54,7 +54,7 @@ async function handleLogout() {
             });
             await signOut(auth);
             localStorage.removeItem('currentUserUID');
-            window.location.href = "./sign.html";
+            window.location.href = "./index.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
         }
@@ -81,7 +81,7 @@ onAuthStateChanged(auth, async (user) => {
         
     }else {
             // Пользователь не авторизован - перенаправляем на страницу входа
-            window.location.href = "./sign.html";
+            window.location.href = "./index.html";
     }
 });
 function setupInvitationListener(user) {

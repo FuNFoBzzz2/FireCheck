@@ -116,6 +116,6 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Ошибка при обновлении статуса:", error);
         }
     }else {
-        window.location.href = "./sign.html";
+        window.location.href = "./index.html";
     }
 });
