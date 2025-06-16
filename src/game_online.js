@@ -245,20 +245,15 @@ async function writemodul(userRef){
  
 function setupGameListener(user, gameData) {
         if (!gameData) return;
-        // Определяем цвет текущего игрока
-        // if(gameData.oponent==user.uid){
-            // turn = gameData.color;
         turn = (user.uid === gameData.oponent) ? (gameData.color === 'white' ? 'black' : 'white') : gameData.color; 
-        // }else{
-        //     turn = gameData.color === 'white' ? 'black' : 'white';
-        // }
+        console.log("Цвет пользователя: " , turn);
         turnmatch = gameData.turn;
         blackpiece = gameData.blackpiece || [];
         whitepiece = gameData.whitepiece || [];
         removedesk();
         if (blackpiece.length > 0 || whitepiece.length > 0) {
             console.log("Сборка доски из массива");
-            collectboard();
+            if(user.uid === gameData.oponent){collectboard(true);}else{collectboard(false)}
         } else {
             console.log("Сборка доски с 0");
             initializeBoard();
@@ -277,10 +272,10 @@ function removedesk(){
     existcell.forEach(cell => {cell.parentElement.removeChild(cell);});
 }
 //Сборка доски
-function collectboard(){
+function collectboard(op){
     //console.log("Your color is ", turn);
-    if (turn === "white" ) {
-        console.log("Сборка доски Белые");
+    if (!op) {
+        console.log("Сборка доски пользователя цвета: ", turn);
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
                 const cell = document.createElement("div");
@@ -301,8 +296,8 @@ function collectboard(){
             } 
         }
     }
-    else if(turn === "black"){
-        console.log("Сборка доски Чёрные");
+    else{
+        console.log("Сборка доски опонента с цветом: ", turn);
         for (let row = 0; row < rows; row++) {
             for (let col = 0; col < cols; col++) {
                 const cell = document.createElement("div");
