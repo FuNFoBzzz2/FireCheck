@@ -55,15 +55,18 @@ async function saveUser() {
             return;
         }
         const emailChanged = newEmail.trim().toLowerCase() !== user.email?.trim().toLowerCase();
-        const passwordChanged = Pas1 === Pas2 && Pas1.length >= 6;
+        const passwordChanged = Pas1 !== '' && Pas2 !== '' && Pas1 === Pas2 && Pas1.length >= 6;
         if (emailChanged || passwordChanged) {
-            const password = prompt('Для подтверждения изменения аккаунта введите ваш пароль:');
-            if (!password) return;
+            const password = prompt('Для подтверждения изменения аккаунта введите ваш текущий пароль:');
+            if (!password) {
+                alert("Отменено пользователем");
+                return;
+            }
             try {
                 const credential = EmailAuthProvider.credential(user.email, password);
                 await reauthenticateWithCredential(user, credential);
             } catch (error) {
-                alert("Неверный пароль! Изменения не сохранены.");
+                alert(`Ошибка аутентификации: ${error.message}`);
                 return;
             }
             if (passwordChanged) {
@@ -71,9 +74,9 @@ async function saveUser() {
                     await updatePassword(user, Pas1);
                     document.getElementById('pass-first').value = "";
                     document.getElementById('pass-second').value = "";
-                    alert("Пароль успешно изменен!");
+                    alert("Пароль успешно изменён!");
                 } catch (error) {
-                    alert("Ошибка при изменении пароля: " + error.message);
+                    alert(`Ошибка при изменении пароля: ${error.message}`);
                     return;
                 }
             }
@@ -90,22 +93,31 @@ async function saveUser() {
                     }
                     await updateEmail(user, newEmail);
                     await update(ref(db, 'users/' + user.uid), { email: newEmail });
-                    alert("Email успешно изменен!");
+                    alert("Email успешно изменён! Проверьте новую почту для подтверждения.");
                 } catch (error) {
-                    alert("Ошибка при изменении email: " + error.message);
+                    alert(`Ошибка при изменении email: ${error.message}`);
                     return;
                 }
             }
         }
-        const updates = {
-            name: newName,
-            visible_mail: mailVisible
-        };
-        await update(ref(db, 'users/' + user.uid), updates);
-        alert('Данные успешно сохранены!');
+        try {
+            const updates = {
+                name: newName,
+                visible_mail: mailVisible
+            };
+            await update(ref(db, 'users/' + user.uid), updates);
+            if (!emailChanged && !passwordChanged) {
+                alert('Данные профиля успешно сохранены!');
+            } else if (emailChanged || passwordChanged) {
+                alert('Все изменения успешно сохранены!');
+            }
+        } catch (error) {
+            alert(`Ошибка при сохранении данных: ${error.message}`);
+            return;
+        }
     } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        alert(`Ошибка: ${error.message}`);
+        console.error('Общая ошибка сохранения:', error);
+        alert(`Произошла непредвиденная ошибка: ${error.message}`);
     }
 }
 document.getElementById('del-button').addEventListener('click', (e) => {
