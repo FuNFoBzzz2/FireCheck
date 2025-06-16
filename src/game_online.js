@@ -903,7 +903,7 @@ function movePiece(piece, targetCell) {
             
             // Проверка на превращение в дамку с учетом цвета игрока
             if ((piece.dataset.color === "white" && endRow === 0) || 
-                (piece.dataset.color === "black" && endRow === rows-1)) {
+                (piece.dataset.color === "black" && endRow === 0)) {
                 piece.dataset.king = "true"; 
                 piece.classList.add("king");
                 console.log("Шашка превратилась в дамку");
@@ -929,7 +929,7 @@ function movePiece(piece, targetCell) {
         
         // Проверка на превращение в дамку с учетом цвета игрока
         if ((piece.dataset.color === "white" && endRow === 0) || 
-            (piece.dataset.color === "black" && endRow === rows-1)) {
+            (piece.dataset.color === "black" && endRow === 0)) {
             piece.dataset.king = "true";
             piece.classList.add("king");
             console.log("Шашка превратилась в дамку");
