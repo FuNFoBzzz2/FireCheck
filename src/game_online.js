@@ -417,19 +417,16 @@ function PiecesPosition(op) {
         }
     });
 }
+//Клик по доске (Дод)
 function onCellClick(e) {
-    //console.log("Click"); 
     console.log(turnmatch ,"  - ==цвет хода ", turn ,"  - ==цвет шашек"); 
-    if(turnmatch==turn){
-        //console.log("Yslovie", turnmatch ,"  - Match ", turn ,"  - turn "); 
-    //removepoint()
+    if (turnmatch !== turn) return;
     const cell = e.target.closest(".cell");
     if (!cell) return;
     const piece = cell.querySelector(".piece");
     if (selectedPiece && !piece) {
         const startRow = parseInt(selectedPiece.parentElement.dataset.row);
         const startCol = parseInt(selectedPiece.parentElement.dataset.col);
-
         const endRow = parseInt(cell.dataset.row);
         const endCol = parseInt(cell.dataset.col);
         if (selectedPiece.dataset.king == "false") {
@@ -437,41 +434,42 @@ function onCellClick(e) {
             if(canMoveRegular(selectedPiece, startRow, startCol, endRow, endCol, -1)){
                 console.log(`Шашка ходит (${startRow}, ${startCol}) на (${endRow}, ${endCol})`);
                 movePiece(selectedPiece, cell);
-                selectedPiece = null;
             }
         } else {
             console.log(`Королева выбрана`);
             if(canMoveKing(selectedPiece, startRow, startCol, endRow, endCol)){
                 console.log(`Королева ходит (${startRow}, ${startCol}) на (${endRow}, ${endCol})`);
                 moveKing(selectedPiece, cell);
-                selectedPiece = null;
             }
         }
+        return;
     } 
-    else if (piece && piece.dataset.color == turn) {
-        if (checkAllPiece()) {
-            if (possiblecapture(piece)) {
-                if (piece.dataset.king == "false") {
-                    selectedPiece = piece;
-                    possiblemoves(selectedPiece, cell);
+    if (piece && piece.dataset.color == turn) {
+        if (checkAllPiece() || checkAllKings()) {
+            const canCapture = piece.dataset.king === "false" ? possiblecapture(piece) : possibleKing(piece);
+            if (canCapture) {
+                selectedPiece = piece;
+                if(piece.dataset.king === "false"){
+                    possiblemoves(selectedPiece);
                 } 
                 else {
-                    possiblemovesKing(piece);
-                    selectedPiece = piece;
+                    possiblemovesKing(piece)
                 }
-            } 
+            } else {
+                console.log("Вы должны выбрать фигуру, которая может брать");
+                return;
+            }
         } else {
+            selectedPiece = piece;
             if (piece.dataset.king == "false") {
-                selectedPiece = piece;
                 possiblemoves(selectedPiece, cell);
             } 
             else {
                 possiblemovesKing(piece); 
-                selectedPiece = piece;
             }
         }
     } 
-    }
+    
 }
 //проверка всех обычных шашек на взятие
 function checkAllPiece() {
@@ -538,55 +536,28 @@ function possiblecapture(piece) {
     }
     return false;
 }
-//Проверка взятий для короны
-function possibleKing(piece) {
-    const Row = parseInt(piece.parentElement.dataset.row);
-    const Col = parseInt(piece.parentElement.dataset.col);
-    const mas = [
-        { newa: 1, newb: 1 },
-        { newa: -1, newb: 1 },
-        { newa: 1, newb: -1 },
-        { newa: -1, newb: -1 }];
-    for (const combo of mas) {
-        const rowa = combo.newa;
-        const colb = combo.newb;
-        let enemypiece=0;
-        for (let a =1; a<7;a++){
-            const newRow = Row + (rowa*a);
-            const newCol = Col + (colb*a);
-            //console.log("Новые переменные для шага" ,newRow, " ", newCol);
-            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {     
-                const Cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
-                const piece =Cell.querySelector(".piece");
-                if(piece && piece.dataset.color!=turn){ 
-                    // if(enemypiece==1){
-                    //     break;
-                    // }
-                    //console.log("УЫР " ,(newRow+rowa), " ", (newCol+colb), " / ", (newRow), " ", (newCol)," ");
-                    const Celler = document.querySelector(`.cell[data-row="${(newRow+rowa)}"][data-col="${(newCol+colb)}"]`);
-                    let piecea = Celler.querySelector(".piece");
-                    //Исправить
-                    if(!piecea){
-                        enemypiece = 1;
-                        return true;
-                    }                  
-                }
-                if(piece && piece.dataset.color==turn){
-                    break;
-                } 
-                // const point = document.createElement("div");
-                // point.classList.add("point");
-                // Cell.appendChild(point);
-                continue
+//Проверка определённого хода и взятия для шашки
+function canMoveRegular(piece, startRow, startCol, endRow, endCol, direction) {
+    if (Math.abs(endRow - startRow) == 1 &&
+        Math.abs(endCol - startCol) == 1 &&
+        endRow - startRow == direction) {
+        //console.log('Верно');
+        return true;
+    }
+    if (Math.abs(endRow - startRow) == 2 &&
+        Math.abs(endCol - startCol) == 2 ){
+            const middleRow = (startRow + endRow) / 2;
+            const middleCol = (startCol + endCol) / 2;
+
+            const middleCell = document.querySelector(`.cell[data-row="${middleRow}"][data-col="${middleCol}"]`);
+            const middlePiece = middleCell.querySelector(".piece");
+            if (middlePiece && middlePiece.dataset.color != turn) {
+                return true;
             }
         }
-    }
+    console.log('НЕ Верно ', startRow , " ", startCol, " ", endRow, " " ,endCol);
     return false;
-}
-//удаление точек
-function removepoint(){
-    const existingPoints = document.querySelectorAll('.point');
-    existingPoints.forEach(point => {point.parentElement.removeChild(point);});
+    
 }
 //возможные ходы для шашки (точки)
 function possiblemoves(piece){
@@ -637,6 +608,95 @@ function possiblemoves(piece){
             }
         }
     }
+}
+//удаление точек
+function removepoint(){
+    const existingPoints = document.querySelectorAll('.point');
+    existingPoints.forEach(point => {point.parentElement.removeChild(point);});
+}
+// Проверка всех Королей на взятия
+function checkAllKings() {
+    const kings = document.querySelectorAll(`.piece[data-color="${turn}"][data-king="true"]`);
+    let canCapture = false;
+    kings.forEach(king => {
+        const row = parseInt(king.parentElement.dataset.row);
+        const col = parseInt(king.parentElement.dataset.col);
+        const directions = [
+            { dr: 1, dc: 1 }, 
+            { dr: -1, dc: 1 }, 
+            { dr: 1, dc: -1 }, 
+            { dr: -1, dc: -1 } 
+        ];
+        for (const dir of directions) {
+            let foundEnemy = false;
+            for (let step = 1; step < 8; step++) {
+                const newRow = row + dir.dr * step;
+                const newCol = col + dir.dc * step;
+                if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) break;
+                const cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
+                const pieceInCell = cell.querySelector(".piece");
+                if (!pieceInCell) {
+                    if (foundEnemy) {
+                        canCapture = true;
+                        console.log(`Дамка на (${row}, ${col}) может взять шашку в направлении (${dir.dr}, ${dir.dc})`);
+                        break;
+                    }
+                    continue;
+                }
+                if (pieceInCell.dataset.color === turn) break;
+                if (pieceInCell.dataset.color !== turn && !foundEnemy) {
+                    foundEnemy = true;
+                    continue;
+                }
+                if (pieceInCell.dataset.color !== turn && foundEnemy) {
+                    break; 
+                }
+            }
+            if (canCapture) break;
+        }
+    });
+    return canCapture;
+}
+//Проверка взятий для короны
+function possibleKing(piece) {
+    const Row = parseInt(piece.parentElement.dataset.row);
+    const Col = parseInt(piece.parentElement.dataset.col);
+    const mas = [
+        { newa: 1, newb: 1 },
+        { newa: -1, newb: 1 },
+        { newa: 1, newb: -1 },
+        { newa: -1, newb: -1 }];
+    for (const combo of mas) {
+        let foundEnemy = false;
+        let foundEmptyAfterEnemy = false;
+        const rowa = combo.newa;
+        const colb = combo.newb;
+        for (let a =1; a<7;a++){
+            const newRow = Row + (rowa*a);
+            const newCol = Col + (colb*a);
+            if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) break;    
+                const Cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
+                if (!Cell) break;
+                const piece =Cell.querySelector(".piece");
+                if (!piece) {
+                    if (foundEnemy) {
+                        return true;
+                    }
+                    continue;
+                }
+                if (piece.dataset.color === turn) break;
+                if (piece.dataset.color !== turn) {
+                    if (!foundEnemy) {
+                    foundEnemy = true;
+                    continue;
+                } else {
+                    break; 
+                }
+                }
+            
+        }
+    }
+    return false;
 }
 //Возможные ходы для короля (точки)
 function possiblemovesKing(piece){
@@ -703,106 +763,103 @@ function possiblemovesKing(piece){
         }
     }
 }
-
-//Проверка определённого хода и взятия для шашки
-function canMoveRegular(piece, startRow, startCol, endRow, endCol, direction) {
-    if (Math.abs(endRow - startRow) == 1 &&
-        Math.abs(endCol - startCol) == 1 &&
-        endRow - startRow == direction) {
-        //console.log('Верно');
-        return true;
-    }
-    if (Math.abs(endRow - startRow) == 2 &&
-        Math.abs(endCol - startCol) == 2 ){
-            const middleRow = (startRow + endRow) / 2;
-            const middleCol = (startCol + endCol) / 2;
-
-            const middleCell = document.querySelector(`.cell[data-row="${middleRow}"][data-col="${middleCol}"]`);
-            const middlePiece = middleCell.querySelector(".piece");
-            if (middlePiece && middlePiece.dataset.color != turn) {
-                return true;
-            }
-        }
-    console.log('НЕ Верно ', startRow , " ", startCol, " ", endRow, " " ,endCol);
-    return false;
-    
-}
-
 //Проверка хода и взятия для Королевы
 function canMoveKing(piece, startRow, startCol, endRow, endCol) {
-    const Cell = document.querySelector(`.cell[data-row="${endRow}"][data-col="${endCol}"]`);
-    const point = Cell.querySelector(".point");
-    let rowdir = 0;
-    let coldir = 0;
-    if (Cell.querySelector(".point")) {
-        return true;
+    if (Math.abs(endRow - startRow) !== Math.abs(endCol - startCol)) {
+        console.log("Ход по этой траектории невозможен");
+        return false;
     }
-    return false;
+    const rowDirection = endRow > startRow ? 1 : -1;
+    const colDirection = endCol > startCol ? 1 : -1;
+    let enemyCount = 0;
+    let lastEnemyRow = -1;
+    let lastEnemyCol = -1;
+    for (let i = 1; i < Math.abs(endRow - startRow); i++) {
+        const checkRow = startRow + i * rowDirection;
+        const checkCol = startCol + i * colDirection;
+        const cell = document.querySelector(`.cell[data-row="${checkRow}"][data-col="${checkCol}"]`);
+        const pieceInCell = cell.querySelector(".piece");
+        if (pieceInCell) {
+            if (pieceInCell.dataset.color === turn) {
+                return false;
+            } else {
+                enemyCount++;
+                lastEnemyRow = checkRow;
+                lastEnemyCol = checkCol; 
+                if (enemyCount > 1) {
+                    return false;
+                }
+            }
+        }
+    }
+    const targetCell = document.querySelector(`.cell[data-row="${endRow}"][data-col="${endCol}"]`);
+    if (targetCell.querySelector(".piece")) {
+        return false;
+    }
+    if (enemyCount === 1) {
+        const enemyToEndDistance = Math.max(
+            Math.abs(endRow - lastEnemyRow),
+            Math.abs(endCol - lastEnemyCol)
+        );
+        if (enemyToEndDistance < 1) {
+            return false;
+        }
+    }
+    if (enemyCount === 0 && possibleKing(piece)) {
+        return false;
+    }
+    return true;
 }
-//Ход короля (Доделать)
-function moveKing(piece, targetCell){
+//Ход короля
+function moveKing(piece, targetCell) {
     const startRow = parseInt(piece.parentElement.dataset.row);
     const startCol = parseInt(piece.parentElement.dataset.col);
     const endRow = parseInt(targetCell.dataset.row);
     const endCol = parseInt(targetCell.dataset.col);
-    //removepoint();
-    const point = targetCell.querySelector(".point");
-    let rowdir = 0;
-    let coldir = 0;
-    let war=0;
-    if (point) {
-        if(startRow>endRow){
-            rowdir =-1;
-        } else rowdir =1;
-        if (startCol>endCol){
-            coldir = -1
-        } else coldir = 1;
-        for(let i=1;i<7;i++){
-            console.log(`Королева ходит (${startRow}, ${startCol}) на (${endRow}, ${endCol})`);
-            const newRow = startRow + (rowdir*i);
-            const newCol = startCol + (coldir*i);
-            if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) { 
-                console.log(`ESH`);  
-                const Celldoc = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
-                const piecego =Celldoc.querySelector(".piece");
-                const pointgo =Celldoc.querySelector(".point");
-                if(piecego && piecego.dataset.color!=turn){
-                    Celldoc.removeChild(piecego);
-                    war=1;
-                }
-                if(newRow==endRow && newCol==endCol){
-                    console.log(`JR`);  
-                    Celldoc.appendChild(piece);
-                    if(!possibleKing(piece) && war==1){
-                        removepoint();
-                        console.log(`Удаление точек`);  
-                    }else{
-                        console.log(`123`);  
-                        selectedPiece = null;
-                        turn = turn == "white" ? "black" : "white";
-                    }
-                    checkGameState();
-                    removepoint();
-                    break;
-                }  
-                
+    removepoint();
+    if (!canMoveKing(piece, startRow, startCol, endRow, endCol)) {
+        console.log("Недопустимый ход дамки");
+        return;
+    }
+    const rowDir = endRow > startRow ? 1 : -1;
+    const colDir = endCol > startCol ? 1 : -1;
+    let capturedPiece = false;
+    for (let step = 1; step <= Math.abs(endRow - startRow); step++) {
+        const currentRow = startRow + step * rowDir;
+        const currentCol = startCol + step * colDir;
+        if (currentRow === startRow && currentCol === startCol) continue;
+        if (currentRow === endRow && currentCol === endCol) continue;  
+        const currentCell = document.querySelector(`.cell[data-row="${currentRow}"][data-col="${currentCol}"]`);
+       if (!currentCell) continue;
+        const pieceInCell = currentCell.querySelector(".piece");
+        if (pieceInCell) {
+            if (pieceInCell.dataset.color === turn) {
+                console.log("перепрыгивание своих шашек");
+                return;
+            } else {
+                currentCell.removeChild(pieceInCell);
+                capturedPiece = true;
             }
         }
     }
-    PiecesPosition(op);
+    targetCell.appendChild(piece);
+    let mustContinueCapture = capturedPiece ? possibleKing(piece) : false;
+    if (!mustContinueCapture) {
+        selectedPiece = null;
+        turnmatch = turnmatch === "white" ? "black" : "white";
+    } else {
+        selectedPiece = piece;
+        possiblemovesKing(piece);
+    }
+    PiecesPosition();
     update(gameRef, {
         blackpiece: blackpiece, 
         whitepiece: whitepiece, 
         turn: turnmatch
     });
-    // socket.emit("movement", {
-    //     blackpiece: blackpiece, 
-    //     whitepiece: whitepiece, 
-    //     turnmatch: turnmatch
-    // });
     checkGameState();
 }
-//Ход шашки (Доделать)
+//Ход шашки
 function movePiece(piece, targetCell) {
     const startRow = parseInt(piece.parentElement.dataset.row);
     const startCol = parseInt(piece.parentElement.dataset.col);
@@ -815,35 +872,38 @@ function movePiece(piece, targetCell) {
             const middlePiece = middleCell.querySelector(".piece");
             middleCell.removeChild(middlePiece);
             targetCell.appendChild(piece);
-            console.log("TEST color: ", piece.dataset.color , " row: ", endRow, " is King: ", piece.dataset.king);
-            if ((endRow == 0) && piece.dataset.king == "false") { 
-                piece.dataset.king = "true";
+            if ((piece.dataset.color === "white" && endRow === 0) || 
+                (piece.dataset.color === "black" && endRow === 7)) {
+                piece.dataset.king = "true"; 
                 piece.classList.add("king");
-                console.log("King is true");
-                //Доделать!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                if(!possibleKing(piece)){
+                console.log("Шашка превратилась в дамку");
+                
+            }
+            if (piece.dataset.king === "true") {
+                if (!possibleKing(piece)) {
                     selectedPiece = null;
-                    turnmatch = turnmatch == "white" ? "black" : "white";
+                    turnmatch = turnmatch === "white" ? "black" : "white";
+                }
+            } else {
+                if (!possiblecapture(piece)) {
+                    selectedPiece = null;
+                    turnmatch = turnmatch === "white" ? "black" : "white";
+                } else {
+                    selectedPiece = piece;
+                    possiblemoves(piece);
                 }
             }
-            else if(!possiblecapture(piece)){
-                //possiblemoves(piece)
-                selectedPiece = null;
-                turnmatch = turnmatch == "white" ? "black" : "white";
-            }
-        } 
+        }
     }else {
-        if (((piece.dataset.color == "white" && endRow == 0) ||
-            (piece.dataset.color == "black" && endRow == 7)) && 
-            piece.dataset.king == "false") {
+        targetCell.appendChild(piece);
+        if ((piece.dataset.color === "white" && endRow === 0) || 
+            (piece.dataset.color === "black" && endRow === 7)) {
             piece.dataset.king = "true";
             piece.classList.add("king");
-            console.log("King is true");
+            console.log("Шашка превратилась в дамку");
         }
-        console.log("FGSA");
-        targetCell.appendChild(piece);
         selectedPiece = null;
-        turnmatch = turnmatch == "white" ? "black" : "white";
+        turnmatch = turnmatch === "white" ? "black" : "white";
     }
     PiecesPosition(op);
     update(gameRef, {
@@ -851,62 +911,71 @@ function movePiece(piece, targetCell) {
         whitepiece: whitepiece, 
         turn: turnmatch
     });
-    // socket.emit("movement", {
-    //     blackpiece: blackpiece, 
-    //     whitepiece: whitepiece, 
-    //     turnmatch: turnmatch
-    // });
     checkGameState();
-    
 }
-function checkGameState() {
+// Проверка завершения партии (Дод)
+async function checkGameState() {
     let whiteCount = 0;
     let blackCount = 0;
     let whiteHasMoves = true;
     let blackHasMoves = true;
     for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const cell = document.querySelector(
-          `.cell[data-row="${row}"][data-col="${col}"]`
-        );
-        const piece = cell.querySelector(".piece");
-        if (piece) {
-          if (piece.dataset.color === "white") {
-            whiteCount++;
-            if (!whiteHasMoves && hasValidMoves(piece)) {
-              whiteHasMoves = true;
+        for (let col = 0; col < cols; col++) {
+            const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+            const piece = cell.querySelector(".piece");
+            if (piece) {
+                if (piece.dataset.color === "white") {
+                    whiteCount++;
+                    if (!whiteHasMoves && hasValidMoves(piece)) {
+                        whiteHasMoves = true;
+                    }
+                } else {
+                    blackCount++;
+                    if (!blackHasMoves && hasValidMoves(piece)) {
+                        blackHasMoves = true;
+                    }
+                }
             }
-          } else if (piece.dataset.color === "black") {
-            blackCount++;
-            if (!blackHasMoves && hasValidMoves(piece)) {
-              blackHasMoves = true;
-            }
-          }
         }
-      }
     }
+    let winner = null;
     if (whiteCount === 0 || !whiteHasMoves) {
-      alert("Чёрные выигрывают!");
-      disableBoard();
+        alert("Чёрные выигрывают!");
+        winner = "black";
     } else if (blackCount === 0 || !blackHasMoves) {
-      alert("Белые выигрывают!");
-      disableBoard();
+        alert("Белые выигрывают!");
+        winner = "white";
     }
-   }
+    if (winner) {
+        try {
+            const user = auth.currentUser;
+            const opponentUid = datop.oponent === user.uid ? gameRef.key : datop.oponent;
+            if (winner === turn) {
+                await update(ref(db, `users/${user.uid}`), { wins: increment(1) });
+                await update(ref(db, `users/${opponentUid}`), { loses: increment(1) });
+            } else {
+                await update(ref(db, `users/${user.uid}`), { loses: increment(1) });
+                await update(ref(db, `users/${opponentUid}`), { wins: increment(1) });
+            }
+            await remove(gameRef);
+            window.location.href = "./home.html";
+        } catch (error) {
+            console.error("Ошибка при обработке победы:", error);
+            alert("Произошла ошибка при завершении игры");
+        }
+    }
+}
+function hasValidMoves(piece) {
+    if (piece.dataset.king === "true") {
+        return possibleKing(piece);
+    } else {
+        return possiblecapture(piece);
+    }
+}
+//Удаление доски (Дод?)
 function disableBoard() {
     document
-     // Удаление обработчиков событий клика со всех клеток
       .querySelectorAll(".cell")
       .forEach((cell) => cell.removeEventListener("click", onCellClick));
 }
 PiecesPosition();
-// update(gameRef, {
-//         blackpiece: blackpiece, 
-//         whitepiece: whitepiece, 
-//         turn: turnmatch
-//     });
-// socket.emit("movement", {
-//     blackpiece: blackpiece, 
-//     whitepiece: whitepiece, 
-//     turnmatch: turnmatch
-// });
