@@ -34,7 +34,7 @@ let  whitepiece = [];
 let roomListener = null;
 let deletePromises = [];
 let leaveListen = false;
-
+let gameEnded = false;
 document.getElementById('leave').addEventListener('click', async (e) => {
     e.preventDefault();
     console.log("Выход по кнопке");
@@ -42,62 +42,68 @@ document.getElementById('leave').addEventListener('click', async (e) => {
 });
 //Домой 
 async function handlegohome(message = null) {
-    if (gameEnded) return;
+    // Проверяем, что игра еще не завершена
+    if (typeof gameEnded !== 'undefined' && gameEnded) return;    
     const user = auth.currentUser;
-    console.log("Выход");   
+    console.log("Выход");    
     if (user) {
         try {
-            deletePromises = [];
-            const gamesnap = await get(gameRef);            
-            // Если игры уже нет, просто выходим
+            deletePromises = [];           
+            if (!gameRef) {
+                if (message) alert(message);
+                window.location.href = "./home.html";
+                return;
+            }           
+            const gamesnap = await get(gameRef);
             if (!gamesnap.exists()) {
                 if (message) alert(message);
                 window.location.href = "./home.html";
                 return;
-            }            
-            const gameData = gamesnap.val();           
-            // Если противник уже сдался
+            }           
+            const gameData = gamesnap.val();
             if (gameData && gameData.leave === 1) {
                 gameEnded = true;
                 leaveListen = true;
                 console.log("Победа из-за выхода противника");
-                await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
-                await remove(gameRef);                
+                if (!gameEnded) {
+                    await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
+                    const opponentUid = gameData.oponent;
+                    if (opponentUid) {
+                        await update(ref(db, 'users/' + opponentUid), {loses: increment(1)});
+                    }
+                }               
+                await remove(gameRef);               
                 if (message) alert(message);
                 window.location.href = "./home.html";
                 return;
-            }          
+            }      
             // Если есть оппонент - спрашиваем подтверждение сдачи
-            if (gameData.oponent) {
+            if (gameData && gameData.oponent) {
                 const confirmSurrender = confirm('Вы уверены, что хотите сдаться?');                
                 if (!confirmSurrender) {
                     return; // Отмена выхода
                 }               
                 gameEnded = true;
-                leaveListen = true;             
-                // Обновляем статистику
+                leaveListen = true;
                 const opponentUid = gameData.oponent;
                 await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
-                await update(ref(db, 'users/' + opponentUid), {wins: increment(1)});               
-                // Помечаем игру как завершенную
+                await update(ref(db, 'users/' + opponentUid), {wins: increment(1)});
                 await update(gameRef, {leave: 1});
                 await new Promise(resolve => setTimeout(resolve, 500)); // Даем время на обновление
-                await remove(gameRef);                
+                await remove(gameRef);               
                 if (message) alert(message);
                 window.location.href = "./home.html";
                 return;
-            }            
-            // Если нет оппонента (ожидание игры)
+            }
             const invitationsRef = ref(db, 'letter');
-            const snapshot = await get(invitationsRef);           
+            const snapshot = await get(invitationsRef);            
             if (snapshot.exists()) {
                 snapshot.forEach((childSnapshot) => {
                     if (childSnapshot.val().from === user.uid) {
                         deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
                     }
                 });
-            }            
-            // Удаляем комнату если она есть
+            }
             if (gameRef) {
                 await remove(gameRef);
             }           
@@ -108,12 +114,14 @@ async function handlegohome(message = null) {
             if (message) {
                 alert(message);
             }
-            window.location.href = "./home.html"; 
+            window.location.href = "./home.html";           
         } catch (error) {
+            console.error("Ошибка при выходе:", error);
             alert("Ошибка при выходе: " + error.message);
         }
     } else {
         console.log("Пользователь не найден");
+        window.location.href = "./index.html";
     }
 }
 let datop;
