@@ -667,7 +667,7 @@ function possiblemovesKing(piece){
                     if (foundEnemy) {
                         const point = document.createElement("div");
                         point.classList.add("point");
-                        cell.appendChild(point);
+                        Cell.appendChild(point);
                         canCapture = true;
                     }
                     continue;                   
@@ -693,12 +693,12 @@ function possiblemovesKing(piece){
                 
                 if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) break;
                 
-                const cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
-                if (cell.querySelector(".piece")) break;
+                const Cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
+                if (Cell.querySelector(".piece")) break;
                 
                 const point = document.createElement("div");
                 point.classList.add("point");
-                cell.appendChild(point);
+                Cell.appendChild(point);
             }
         }
     }
