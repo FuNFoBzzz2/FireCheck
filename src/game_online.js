@@ -102,15 +102,16 @@ async function handlegohome(message = null) {
     }
 }
 function setupRoomListener(user) {
-    if(leaveListen){
-        return;
-    }
+    
     if (!gameRef) return;
     // Отписываемся от предыдущего слушателя, если он есть
     if (roomListener) {
         roomListener();
     }
     roomListener = onValue(gameRef, (snapshot) => {
+        if(leaveListen){
+            return;
+        }
         const roomData = snapshot.val();
         if (!roomData) {
             handlegohome("Комната была удалена");
