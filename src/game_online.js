@@ -33,6 +33,7 @@ let  blackpiece = [];
 let  whitepiece = [];
 let roomListener = null;
 let deletePromises = [];
+let leaveListen = false;
 
 document.getElementById('leave').addEventListener('click', async (e) => {
     e.preventDefault();
@@ -50,13 +51,13 @@ async function handlegohome(message = null) {
             const gamesnap = await get(gameRef);
             if (!gamesnap.exists()) {
                 if (message) alert(message);
-                alert("Неизбежный выход");
                 window.location.href = "./home.html";
                 return;
             }
             const gameData = gamesnap.val();
             let shouldProcessExit = true;
             if(gameData && gameData.leave===1){
+                leaveListen = true;
                 console.log("Победа из-за выхода противника");
                 await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
                 await remove(gameRef);
@@ -76,6 +77,7 @@ async function handlegohome(message = null) {
                 }
                 if(gameData.oponent){
                     if(confirm('Вы уверены, что хотите сдаться?')){
+                        leaveListen = true;
                         await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
                         await update(gameRef, {leave: 1});
                         await new Promise(resolve => setTimeout(resolve, 500));
@@ -91,7 +93,6 @@ async function handlegohome(message = null) {
             if (message) {
                 alert(message);
             }
-            alert("С пляжа");
             window.location.href = "./home.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
@@ -101,6 +102,9 @@ async function handlegohome(message = null) {
     }
 }
 function setupRoomListener(user) {
+    if(leaveListen){
+        return;
+    }
     if (!gameRef) return;
     // Отписываемся от предыдущего слушателя, если он есть
     if (roomListener) {
