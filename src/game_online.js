@@ -74,7 +74,7 @@ async function handlegohome(message = null) {
                     });
                     //await Promise.all(deletePromises);
                 }
-                if(gameData.opponent){
+                if(gameData.oponent){
                     if(confirm('Вы уверены, что хотите сдаться?')){
                         await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
                         await update(gameRef, {leave: 1});
