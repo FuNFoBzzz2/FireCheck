@@ -42,58 +42,73 @@ document.getElementById('leave').addEventListener('click', async (e) => {
 });
 //Домой 
 async function handlegohome(message = null) {
+    if (gameEnded) return;
     const user = auth.currentUser;
-    const leaveparam = true;
-    console.log("Выход");
+    console.log("Выход");   
     if (user) {
         try {
             deletePromises = [];
-            const gamesnap = await get(gameRef);
+            const gamesnap = await get(gameRef);            
+            // Если игры уже нет, просто выходим
             if (!gamesnap.exists()) {
                 if (message) alert(message);
                 window.location.href = "./home.html";
                 return;
-            }
-            const gameData = gamesnap.val();
-            let shouldProcessExit = true;
-            if(gameData && gameData.leave===1){
+            }            
+            const gameData = gamesnap.val();           
+            // Если противник уже сдался
+            if (gameData && gameData.leave === 1) {
+                gameEnded = true;
                 leaveListen = true;
                 console.log("Победа из-за выхода противника");
                 await update(ref(db, 'users/' + user.uid), {wins: increment(1)});
+                await remove(gameRef);                
+                if (message) alert(message);
+                window.location.href = "./home.html";
+                return;
+            }          
+            // Если есть оппонент - спрашиваем подтверждение сдачи
+            if (gameData.oponent) {
+                const confirmSurrender = confirm('Вы уверены, что хотите сдаться?');                
+                if (!confirmSurrender) {
+                    return; // Отмена выхода
+                }               
+                gameEnded = true;
+                leaveListen = true;             
+                // Обновляем статистику
+                const opponentUid = gameData.oponent;
+                await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
+                await update(ref(db, 'users/' + opponentUid), {wins: increment(1)});               
+                // Помечаем игру как завершенную
+                await update(gameRef, {leave: 1});
+                await new Promise(resolve => setTimeout(resolve, 500)); // Даем время на обновление
+                await remove(gameRef);                
+                if (message) alert(message);
+                window.location.href = "./home.html";
+                return;
+            }            
+            // Если нет оппонента (ожидание игры)
+            const invitationsRef = ref(db, 'letter');
+            const snapshot = await get(invitationsRef);           
+            if (snapshot.exists()) {
+                snapshot.forEach((childSnapshot) => {
+                    if (childSnapshot.val().from === user.uid) {
+                        deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
+                    }
+                });
+            }            
+            // Удаляем комнату если она есть
+            if (gameRef) {
                 await remove(gameRef);
-                shouldProcessExit = false;
-            }
-            if(shouldProcessExit){
-                const invitationsRef = ref(db, 'letter');
-                const snapshot = await get(invitationsRef);
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        if (childSnapshot.val().from === user.uid) {
-                            deletePromises.push(remove(ref(db, `letter/${childSnapshot.key}`)));
-                            remove(gameRef);
-                        }
-                    });
-                    //await Promise.all(deletePromises);
-                }
-                if(gameData.oponent){
-                    if(confirm('Вы уверены, что хотите сдаться?')){
-                        leaveListen = true;
-                        await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
-                        await update(gameRef, {leave: 1});
-                        await new Promise(resolve => setTimeout(resolve, 500));
-                        await remove(gameRef);
-                    }else {
-                        return; 
-                    }   
-                }
-                if (deletePromises.length > 0) {
-                    await Promise.all(deletePromises);
-                }
-            }
+            }           
+            // Ожидаем завершения всех удалений
+            if (deletePromises.length > 0) {
+                await Promise.all(deletePromises);
+            }           
             if (message) {
                 alert(message);
             }
-            window.location.href = "./home.html";
+            window.location.href = "./home.html"; 
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
         }
@@ -150,6 +165,20 @@ onAuthStateChanged(auth, async (user) => {
             });
             onDisconnect(userRef).update({
                 Online: false,
+            }).then(async () => {
+                if (!gameEnded && gameRef) {
+                    const gameSnapshot = await get(gameRef);
+                    if (gameSnapshot.exists()) {
+                        const gameData = gameSnapshot.val();
+                        if (gameData && gameData.oponent) {
+                            const opponentUid = user.uid === gameData.oponent ? gameRef.key : gameData.oponent;                            
+                            await update(ref(db, 'users/' + user.uid), {loses: increment(1)});
+                            await update(ref(db, 'users/' + opponentUid), {wins: increment(1)});                           
+                            gameEnded = true;
+                            await remove(gameRef);
+                        }
+                    }
+                }
             });
             writemodul(userRef);
             
@@ -177,7 +206,6 @@ onAuthStateChanged(auth, async (user) => {
                 setupRoomListener(user)
                 } else {
                 console.log("Подключённый");
-
                 // если мы оппонент
                     const allRoomsRef = ref(db, 'room');
                     const allRoomsSnapshot = await get(allRoomsRef);
@@ -949,6 +977,7 @@ function movePiece(piece, targetCell) {
 }
 // Проверка завершения партии (Дод)
 async function checkGameState() {
+    if (gameEnded) return;
     let whiteCount = 0;
     let blackCount = 0;
     let whiteHasMoves = true;
@@ -982,6 +1011,9 @@ async function checkGameState() {
     }
     if (winner) {
         try {
+            gameEnded = true;
+            const gameData = datop;
+            if (!gameData || !gameData.oponent) return;
             const user = auth.currentUser;
             const opponentUid = datop.oponent === user.uid ? gameRef.key : datop.oponent;
             if (winner === turn) {
