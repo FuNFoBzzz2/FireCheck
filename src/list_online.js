@@ -16,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
+let currentInvitationRef = null;
 
 async function loadOnlinePlayers() {
     const currentUser = auth.currentUser;
