@@ -50,6 +50,7 @@ async function handlegohome(message = null) {
             const gamesnap = await get(gameRef);
             if (!gamesnap.exists()) {
                 if (message) alert(message);
+                alert("Неизбежный выход");
                 window.location.href = "./home.html";
                 return;
             }
@@ -90,6 +91,7 @@ async function handlegohome(message = null) {
             if (message) {
                 alert(message);
             }
+            alert("С пляжа");
             window.location.href = "./home.html";
         } catch (error) {
             alert("Ошибка при выходе: " + error.message);
