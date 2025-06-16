@@ -74,7 +74,7 @@ function onCellClick(e) {
                 : canPieceCapture(piece);
             
             if (!canCapture) {
-                alert("Вы должны выбрать шашку, которая может взять!");
+                alert("Вы должны выбрать шашку, которая может рубить!");
                 return;
             }
         }
@@ -157,10 +157,41 @@ function makeMove(fromCell, toCell, piece) {
     const fromCol = parseInt(fromCell.dataset.col);
     const toRow = parseInt(toCell.dataset.row);
     const toCol = parseInt(toCell.dataset.col); 
-    fromCell.removeChild(piece);  
-    if (Math.abs(toRow - fromRow) === 2) {
-        const midRow = (fromRow + toRow) / 2;
-        const midCol = (fromCol + toCol) / 2;
+    fromCell.removeChild(piece);
+    
+    // Обработка взятия
+    if (Math.abs(toRow - fromRow) >= 2) {  // Изменили условие для дамок
+        let midRow, midCol;
+        
+        if (isKing) {
+            // Для дамки находим все клетки между from и to
+            const rowStep = toRow > fromRow ? 1 : -1;
+            const colStep = toCol > fromCol ? 1 : -1;
+            let foundOpponent = false;
+            
+            for (let i = 1; i < Math.abs(toRow - fromRow); i++) {
+                const checkRow = fromRow + i * rowStep;
+                const checkCol = fromCol + i * colStep;
+                
+                if (cellHasOpponentPiece(checkRow, checkCol, piece.dataset.color)) {
+                    midRow = checkRow;
+                    midCol = checkCol;
+                    foundOpponent = true;
+                    break;
+                }
+            }
+            
+            if (!foundOpponent) {
+                // Если не нашли шашку противника (не должно происходить при валидном ходе)
+                console.error("Не найдена шашка противника при ходе дамкой");
+                return;
+            }
+        } else {
+            // Для обычной шашки
+            midRow = (fromRow + toRow) / 2;
+            midCol = (fromCol + toCol) / 2;
+        }
+        
         const midCell = document.querySelector(`.cell[data-row="${midRow}"][data-col="${midCol}"]`);
         const midPiece = midCell?.querySelector(".piece");     
         if (midPiece) {
@@ -172,6 +203,7 @@ function makeMove(fromCell, toCell, piece) {
             }
         }
     }  
+    
     let becameKing = false;
     if (!isKing && ((piece.dataset.color === "white" && toRow === 0) || 
                     (piece.dataset.color === "black" && toRow === 7))) {
@@ -179,9 +211,12 @@ function makeMove(fromCell, toCell, piece) {
         piece.classList.add("king");
         becameKing = true;
     } 
+    
     toCell.appendChild(piece); 
     updatePiecesArray(fromRow, fromCol, toRow, toCol, becameKing); 
-    if (Math.abs(toRow - fromRow) === 2 && canCaptureMore(toRow, toCol, piece)) {
+    
+    // Проверка возможности дальнейшего взятия
+    if (Math.abs(toRow - fromRow) >= 2 && !becameKing && canCaptureMore(toRow, toCol, piece)) {
         selectedPiece = {cell: toCell, piece};
         showPossibleMoves(toCell, piece);
     } else {
@@ -189,8 +224,10 @@ function makeMove(fromCell, toCell, piece) {
         turn = turn === "white" ? "black" : "white";
         clearHighlights();
     } 
+    
     checkGameEnd();
 }
+
 
 // Обновление массива шашек после хода
 function updatePiecesArray(fromRow, fromCol, toRow, toCol, becameKing) {
