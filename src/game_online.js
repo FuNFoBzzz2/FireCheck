@@ -643,8 +643,7 @@ function possiblemovesKing(piece){
     removepoint();
     const Row = parseInt(piece.parentElement.dataset.row);
     const Col = parseInt(piece.parentElement.dataset.col);  
-    let longenemy = 0;
-    let enemyFound = false;
+    let canCapture = false;
     const mas = [
         { newa: 1, newb: 1 },
         { newa: -1, newb: 1 },
@@ -653,7 +652,8 @@ function possiblemovesKing(piece){
     for (const combo of mas) {
         const rowa = combo.newa;
         const colb = combo.newb;
-        let enemypiece=0;
+        let foundEnemy = false;
+        let foundEmptyAfterEnemy;
         // let skip = false; 
         for (let a =1; a<7;a++){
             //for (let b =0; b<7;b++){
@@ -663,20 +663,42 @@ function possiblemovesKing(piece){
             if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {     
                 const Cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
                 const piecenem =Cell.querySelector(".piece");
-                if(piecenem && piecenem.dataset.color!=turn){ 
-                    if(enemypiece==1){
-                        break;
+                if (!piecenem) {
+                    if (foundEnemy) {
+                        const point = document.createElement("div");
+                        point.classList.add("point");
+                        cell.appendChild(point);
+                        canCapture = true;
                     }
-                    enemypiece = 1;
-                    continue                        
+                    continue;                   
+                }
+                if(piecenem && piecenem.dataset.color!=turn && !foundEnemy){ 
+                    foundEnemy = true;
+                    continue;
                 }
                 if(piecenem && piecenem.dataset.color==turn){
                     break;
                 } 
+                if(piecenem && piecenem.dataset.color!=turn && foundEnemy){ 
+                    break;
+                }
+            }
+        }
+    }
+    if (!canCapture) {
+        for (const combo of mas) {
+            for (let step = 1; step < 7; step++) {
+                const newRow = Row + combo.newa * step;
+                const newCol = Col + combo.newb * step;
+                
+                if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) break;
+                
+                const cell = document.querySelector(`.cell[data-row="${newRow}"][data-col="${newCol}"]`);
+                if (cell.querySelector(".piece")) break;
+                
                 const point = document.createElement("div");
                 point.classList.add("point");
-                Cell.appendChild(point);
-                continue
+                cell.appendChild(point);
             }
         }
     }
