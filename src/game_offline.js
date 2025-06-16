@@ -167,7 +167,7 @@ function makeMove(fromCell, toCell, piece) {
             let foundOpponent = false;
             for (let i = 1; i < Math.abs(toRow - fromRow); i++) {
                 const checkRow = fromRow + i * rowStep;
-                const checkCol = fromCol + i * colStep;  
+                const checkCol = fromCol + i * colStep;   
                 if (cellHasOpponentPiece(checkRow, checkCol, piece.dataset.color)) {
                     midRow = checkRow;
                     midCol = checkCol;
@@ -209,9 +209,9 @@ function makeMove(fromCell, toCell, piece) {
         showPossibleMoves(toCell, piece);
     } else {
         selectedPiece = null;
-        turn = turn === "white" ? "black" : "white";
+        turn = turn === "white" ? "black" : "white"; // Меняем ход
         clearHighlights();
-    }   
+    } 
     checkGameEnd();
 }
 
