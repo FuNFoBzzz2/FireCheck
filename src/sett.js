@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getDatabase, ref, get, set, remove, onDisconnect, onValue, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { deleteUser, reauthenticateWithCredential, EmailAuthProvider, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { updateEmail, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -37,14 +37,10 @@ document.getElementById('button-save').addEventListener('click', (e) => {
     e.preventDefault();
     saveUser();
 });
-/////////\
-////
-////
 async function saveUser() {
     const user = auth.currentUser;
     const newName = document.getElementById('TextName').value;
     const newEmail = document.getElementById('TextEmail').value;
-    // const oldPassword = document.getElementById('TextPassword').value;
     const Pas1 = document.getElementById('pass-first').value;
     const Pas2 = document.getElementById('pass-second').value;
     const mailVisible = document.getElementById('mailVisible').checked;
@@ -70,6 +66,11 @@ async function saveUser() {
             }
             if(emailChanged){
                 if(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)){
+                    const signInMethods = await fetchSignInMethodsForEmail(auth, newEmail);
+                    if (signInMethods.length > 0) {
+                        alert("Этот email уже используется другим аккаунтом!");
+                        return;
+                    }
                     await updateEmail(user, newEmail);
                     const updates = {
                         email: newEmail
@@ -103,19 +104,6 @@ async function saveUser() {
         alert(`Ошибка: ${error.message}`);
     }
 }
-// Функция отправки письма подтверждения
-// async function sendEmailVerification(user) {
-//     try {
-//         const actionCodeSettings = {
-//             url: window.location.origin + '/home.html', // Укажите вашу страницу подтверждения
-//             handleCodeInApp: true
-//         };
-//         await sendEmailVerification(user, actionCodeSettings);
-//     } catch (error) {
-//         console.error('Ошибка отправки письма подтверждения:', error);
-//         throw error;
-//     }
-// }
 document.getElementById('del-button').addEventListener('click', (e) => {
     e.preventDefault();
     deleteAc();

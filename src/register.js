@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onDisconnect, onValue, remove, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getDatabase, ref, set, onDisconnect, onValue, remove, serverTimestamp, query, orderByChild, equalTo, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInAnonymously, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAv69ST8kfulsnpKoB3Qv-d5tWvwE6s1sk",
@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app); 
-
+const auth = getAuth(app);
 
 document.getElementById('submit-reg').addEventListener('click', async function(event) {
     event.preventDefault();
@@ -28,11 +28,15 @@ document.getElementById('submit-reg').addEventListener('click', async function(e
         if(pas1.length>=6 && pas2.length>=6){
             if(pas1==pas2){
                 if(name.length>=3){
-                    const auth = getAuth();
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, pas1);
-                    const user = userCredential.user;
                     try{
-                        // Сохранение данных пользователя
+                        const signInMethods = await fetchSignInMethodsForEmail(auth, email);
+                        if (signInMethods.length > 0) {
+                            alert("Аккаунт с такой почтой уже существует!");
+                            return;
+                        }
+                        const auth = getAuth();
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, pas1);
+                        const user = userCredential.user;
                         await set(ref(db, 'users/' + user.uid), {
                             name: name,
                             email: email,
@@ -43,7 +47,7 @@ document.getElementById('submit-reg').addEventListener('click', async function(e
                         });
                         localStorage.setItem('currentUserUID', user.uid);
                         window.location.href = "./home.html";
-                        alert("Creating Account");
+                        alert("Аккаунт успешно создан");
                     } catch(error) {
                         alert(error.message);
                     };
