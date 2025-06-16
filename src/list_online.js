@@ -111,6 +111,7 @@ onAuthStateChanged(auth, async (user) => {
                 Online: false,
             });
             loadOnlinePlayers();
+            await checkInvitations(user);
             setInterval(loadOnlinePlayers, 5000);
         } catch (error) {
             console.error("Ошибка при обновлении статуса:", error);
@@ -119,3 +120,67 @@ onAuthStateChanged(auth, async (user) => {
         window.location.href = "./index.html";
     }
 });
+async function checkInvitations(user) {
+    if (!user) return;
+    const invitationsRef = ref(db, 'letter');
+    const snapshot = await get(invitationsRef);
+    const inviteContainer = document.querySelector('.invite-container');
+    if (!snapshot.exists()) {
+        inviteContainer.style.display = 'none';
+        currentInvitationRef = null;
+        return;
+    }
+    let hasInvitation = false;
+    // Преобразуем snapshot в массив для обработки
+    const invitations = [];
+    snapshot.forEach((childSnapshot) => {
+        invitations.push({
+            key: childSnapshot.key,
+            ...childSnapshot.val()
+        });
+    });
+    for (const invitation of invitations) {
+        if (invitation.to === user.uid) {
+            hasInvitation = true;
+            currentInvitationRef = ref(db, `letter/${invitation.key}`);
+            try {
+                const inviterRef = ref(db, `users/${invitation.from}`);
+                const inviterSnapshot = await get(inviterRef);
+                const inviterData = inviterSnapshot.val();
+                if (inviterData) {
+                    document.getElementById('Player_Name').textContent = inviterData.name || 'Без имени';
+                    document.getElementById('Player_Email').textContent = 
+                        inviterData.visible_mail ? (inviterData.email || 'Не указана') : 'Скрыта';
+                    document.getElementById('Player_WL').textContent = 
+                        `${inviterData.wins || 0} / ${inviterData.loses || 0}`;
+                    document.getElementById('accept_play').onclick = async (e) => {
+                        e.preventDefault();
+                        try {
+                        window.location.href = `./party`;
+                        }catch (error) {
+                            console.error("Ошибка при отклонении приглашения:", error);
+                            alert("Не удалось отклонить приглашение");
+                        }
+                    };
+                    const declineBtn = document.getElementById('button_delinvite');
+                    declineBtn.replaceWith(declineBtn.cloneNode(true));
+                    document.getElementById('button_delinvite').onclick = async (e) => {
+                        e.preventDefault();
+                        try {
+                            await remove(currentInvitationRef);
+                            inviteContainer.style.display = 'none';
+                            currentInvitationRef = null;
+                        } catch (error) {
+                            console.error("Ошибка при отклонении приглашения:", error);
+                            alert("Не удалось отклонить приглашение");
+                        }
+                    };
+                }
+            } catch (error) {
+                console.error("Ошибка загрузки данных приглашающего:", error);
+            }
+            break; // Обрабатываем только первое найденное приглашение
+        }
+    }
+    inviteContainer.style.display = hasInvitation ? 'block' : 'none';
+}
