@@ -54,6 +54,9 @@ async function saveUser() {
             alert("Имя должно содержать не менее 3 символов!");
             return;
         }
+        if(Pas1!==Pas2){
+            alert("Пароли должны быть идентичны");
+        }
         const emailChanged = newEmail.trim().toLowerCase() !== user.email?.trim().toLowerCase();
         const passwordChanged = Pas1 !== '' && Pas2 !== '' && Pas1 === Pas2 && Pas1.length >= 6;
         if (emailChanged || passwordChanged) {
