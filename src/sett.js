@@ -56,10 +56,12 @@ async function saveUser() {
         }
         if(Pas1!==Pas2){
             alert("Пароли должны быть идентичны");
+            return;
         }
         const emailChanged = newEmail.trim().toLowerCase() !== user.email?.trim().toLowerCase();
-        const passwordChanged = Pas1 !== '' && Pas2 !== '' && Pas1 === Pas2 && Pas1.length >= 6;
+        const passwordChanged = (Pas1 !== '' && Pas2 !== '') && Pas1.length >= 6;
         if (emailChanged || passwordChanged) {
+            console.log("Изменение пароля или почты");
             const password = prompt('Для подтверждения изменения аккаунта введите ваш текущий пароль:');
             if (!password) {
                 alert("Отменено пользователем");
@@ -75,6 +77,7 @@ async function saveUser() {
             if (passwordChanged) {
                 try {
                     await updatePassword(user, Pas1);
+                    console.log("пароль новый");
                     document.getElementById('pass-first').value = "";
                     document.getElementById('pass-second').value = "";
                     alert("Пароль успешно изменён!");
@@ -89,6 +92,7 @@ async function saveUser() {
                     return;
                 }
                 try {
+                    console.log("Изменение почты");
                     const signInMethods = await fetchSignInMethodsForEmail(auth, newEmail);
                     if (signInMethods.length > 0) {
                         alert("Этот email уже используется другим аккаунтом!");
