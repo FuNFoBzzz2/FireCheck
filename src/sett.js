@@ -58,6 +58,10 @@ async function saveUser() {
             alert("Пароли должны быть идентичны");
             return;
         }
+        if(Pas1.length<6){
+            alert("Пароли должны содержать не менее 6 символов");
+            return;
+        }
         const emailChanged = newEmail.trim().toLowerCase() !== user.email?.trim().toLowerCase();
         const passwordChanged = (Pas1 !== '' && Pas2 !== '') && Pas1.length >= 6;
         if (emailChanged || passwordChanged) {
